@@ -10,11 +10,6 @@ class Main {
     private BotInstance: TriviaBot;
 
     public constructor() {
-        this.Bind();
-        this.Bootstrap();
-    }
-
-    private Bootstrap = (): void =>
         Joi.validate(DotEnv.config().parsed, Schema, { convert: true, noDefaults: false }, (Err: Error, Modified) => {
             if (Err) {
                 this.Logger.log('Invalid .env');
@@ -27,13 +22,7 @@ class Main {
                 this.BotInstance = new TriviaBot((process.env as any) as SchemaType);
             }
         });
-
-    private Bind = () => {
-        process.on('unhandledRejection', (Reason: Error) => this.Logger.log(Reason));
-        process.on('beforeExit', () => this.Destroy());
-    };
-
-    private Destroy = (): void => (this.BotInstance = null);
+    }
 }
 
 new Main();

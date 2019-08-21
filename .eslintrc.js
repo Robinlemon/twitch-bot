@@ -19,17 +19,34 @@ module.exports = {
         'plugin:import/typescript',
     ],
     rules: {
+        /**
+         * Plugins
+         */
         'prettier/prettier': 'error',
-
         'simple-import-sort/sort': 'error',
 
-        //quotes: ['error', 'single'],
-        //indent: ['error', 4, { SwitchCase: 1, ignoreComments: true }],
-        //semi: ['error', 'always'],
-        //'comma-dangle': ['error', 'always-multiline'],
+        /**
+         * ESLint
+         */
         'quote-props': ['error', 'as-needed'],
-        'max-len': ['error', { ignoreComments: true, code: 160 }],
+        'max-len': [
+            'error',
+            {
+                ignoreComments: true,
+                code: 160,
+            },
+        ],
 
+        /**
+         * @typescript-eslint
+         */
+        '@typescript-eslint/no-unused-vars': [
+            'warn',
+            {
+                argsIgnorePattern: '^_',
+                varsIgnorePattern: '^_',
+            },
+        ],
         '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/interface-name-prefix': 'off',
         '@typescript-eslint/no-parameter-properties': 'off',

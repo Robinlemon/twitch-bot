@@ -1,6 +1,6 @@
 {
     "name": "twitch-trivia-bot",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "description": "A TypeScript driven automated Twitch client that provides a trivia functionality in streamers chats.",
     "author": "Lewis Gibson <lewis-gibson@hotmail.com>",
     "license": "MIT",
@@ -20,13 +20,21 @@
     },
     "dependencies": {
         "@hapi/joi": "^15.1.1",
-        "@robinlemon/logger": "^2.0.0",
+        "@robinlemon/logger": "^2.1.0",
+        "@types/bluebird": "^3.5.27",
         "@types/dotenv": "^6.1.1",
+        "@types/fs-extra": "^8.0.0",
         "@types/hapi__joi": "^15.0.3",
         "@types/node": "^12.6.8",
+        "bluebird": "^3.5.5",
         "dotenv": "^8.1.0",
+        "fs-extra": "^8.1.0",
         "joi-extract-type": "^15.0.0",
+        "npm-run-all": "^4.1.5",
         "source-map-support": "^0.5.13",
+        "tmi.js": "^1.4.5",
+        "twitch": "^3.4.2",
+        "twitch-chat-client": "^3.4.2",
         "typescript": "^3.5.3"
     },
     "devDependencies": {

@@ -17,6 +17,7 @@ coverage
 
 # build
 build
+tokens.json
 
 # Dependency directories
 node_modules/
