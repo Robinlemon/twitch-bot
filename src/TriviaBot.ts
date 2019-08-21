@@ -20,21 +20,21 @@ export default class TriviaBot {
     private Logger = new Logger(this.constructor.name);
     private Channels: string[] = [];
 
-    public constructor(private Environment: SchemaType) {
+    public SetChannels = (Channels: string[]) => (this.Channels = Channels);
+    public AddChannels = (Channels: string[]) => (this.Channels = [...this.Channels, ...Channels]);
+
+    public Initialise = async (Environment: SchemaType) => {
         this.Logger.log('Loaded Environment');
         this.Channels = Environment.ChannelsList.split(',').map(k => k.trim());
 
         this.Logger.log('Initialising Twitch API');
-        this.Initialise();
-    }
 
-    private Initialise = async () => {
         this.Logger.log('Loaded Token Info from FS');
         this.TokenInfo = JSON.parse(await fs.readFile('./tokens.json', 'UTF-8'));
 
         this.Logger.log('Constructing Twitch Client');
-        this.TwitchClient = await TwitchClient.withCredentials(this.Environment.ClientID, this.TokenInfo.accessToken, undefined, {
-            clientSecret: this.Environment.ClientSecret,
+        this.TwitchClient = await TwitchClient.withCredentials(Environment.ClientID, this.TokenInfo.accessToken, undefined, {
+            clientSecret: Environment.ClientSecret,
             refreshToken: this.TokenInfo.refreshToken,
             expiry: this.TokenInfo.expiryTimestamp === null ? null : new Date(this.TokenInfo.expiryTimestamp),
             onRefresh: this.RefreshToken,
