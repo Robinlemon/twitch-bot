@@ -6,7 +6,7 @@
 [![Coverage Status][coveralls-image]][coveralls-url]
 [![Codechecks][codechecks-image]][codechecks-url]
 
-A TypeScript driven automated Twitch client that provides a trivia functionality user chats.
+A TypeScript driven automated Twitch client that provides a trivia functionality in streamers chats.
 
 ## Tests
 
