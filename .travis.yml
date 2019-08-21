@@ -1,0 +1,15 @@
+--- 
+before_install: 
+  - "npm update"
+cache: npm
+install: 
+  - "npm install"
+language: node_js
+node_js: 
+  - lts/*
+  - node
+script: 
+  - "npm run build"
+  - "npm run coveralls"
+  - "npm run codechecks"
+sudo: false

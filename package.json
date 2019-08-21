@@ -1,0 +1,65 @@
+{
+    "name": "twitch-trivia-bot",
+    "version": "1.0.0",
+    "description": "A TypeScript driven automated Twitch client that provides a trivia functionality user chats.",
+    "author": "Lewis Gibson <lewis-gibson@hotmail.com>",
+    "license": "MIT",
+    "scripts": {
+        "start": "npm-run-all clean build launch",
+        "build": "tsc -p .",
+        "build:live": "tsc -p . -w",
+        "clean": "rimraf build && rimraf tsconfig.tsbuildinfo",
+        "test": "cross-env NODE_ENV=test jest --verbose --passWithNoTests",
+        "test:live": "cross-env NODE_ENV=test jest --verbose --watchAll --passWithNoTests",
+        "lint": "eslint . --ext .js,.ts",
+        "lint:fix": "eslint . --ext .js,.ts --fix",
+        "coveralls": "jest --coverage --maxWorkers=2 && cat ./coverage/lcov.info | coveralls",
+        "codechecks": "npx codechecks",
+        "launch": "node -r source-map-support/register build",
+        "dev": "tsnd -- src"
+    },
+    "dependencies": {
+        "@hapi/joi": "^15.1.1",
+        "@robinlemon/logger": "^2.0.0",
+        "@types/dotenv": "^6.1.1",
+        "@types/hapi__joi": "^15.0.3",
+        "@types/node": "^12.6.8",
+        "dotenv": "^8.1.0",
+        "joi-extract-type": "^15.0.0",
+        "source-map-support": "^0.5.13",
+        "typescript": "^3.5.3"
+    },
+    "devDependencies": {
+        "@codechecks/client": "^0.1.6-beta.6",
+        "@types/jest": "^24.0.15",
+        "@typescript-eslint/eslint-plugin": "^1.12.0",
+        "@typescript-eslint/parser": "^1.12.0",
+        "coveralls": "^3.0.5",
+        "cross-env": "^5.2.0",
+        "eslint": "^6.0.1",
+        "eslint-config-prettier": "^6.0.0",
+        "eslint-config-standard": "^13.0.1",
+        "eslint-plugin-import": "^2.18.2",
+        "eslint-plugin-jest": "^22.12.0",
+        "eslint-plugin-node": "^9.1.0",
+        "eslint-plugin-prettier": "^3.1.0",
+        "eslint-plugin-promise": "^4.2.1",
+        "eslint-plugin-simple-import-sort": "^4.0.0",
+        "eslint-plugin-standard": "^4.0.0",
+        "husky": "^3.0.3",
+        "jest": "^24.8.0",
+        "prettier": "^1.18.2",
+        "rimraf": "^2.6.3",
+        "ts-jest": "^24.0.2",
+        "ts-node-dev": "^1.0.0-pre.41",
+        "typecov": "^0.2.1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Robinlemon/twitch-trivia-bot.git"
+    },
+    "bugs": {
+        "url": "https://github.com/Robinlemon/twitch-trivia-bot/issues"
+    },
+    "homepage": "https://github.com/Robinlemon/twitch-trivia-bot#readme"
+}
