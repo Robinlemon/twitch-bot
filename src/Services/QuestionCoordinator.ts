@@ -1,4 +1,4 @@
-import Common, { Base64Type } from './Common';
+import Common, { Base64Type } from '../Utils/Common';
 
 export type QuestionDifficulty = 'easy' | 'medium' | 'hard';
 export type QuestionType = 'multiple' | 'boolean';
@@ -104,6 +104,3 @@ export default class QuestionCoordinator {
             ),
         });
 }
-
-type a = Exclude<keyof typeof QuestionCoordinator, 'prototype'>;
-type b = (typeof QuestionCoordinator)['GenerateSession'];

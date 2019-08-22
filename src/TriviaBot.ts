@@ -6,26 +6,11 @@ import * as fs from 'fs-extra';
 import TwitchClient from 'twitch';
 import ChatClient from 'twitch-chat-client';
 
-import Common from './Common';
-import { ITokenResponse, ITokenSerialised } from './Interfaces';
-import QuestionCoordinator, { EQuestionCategory, EStatusCode } from './QuestionCoordinator';
-import { SchemaType } from './Schema';
-
-type FilterFunc<T> = {
-    [K in keyof T]: T[K] extends (...args: unknown[]) => void ? K : never;
-}[keyof T];
+import QuestionCoordinator, { EQuestionCategory, EStatusCode } from './Services/QuestionCoordinator';
+import Common, { ClassMethodReturnTypes, FilterFunc, ITokenResponse, ITokenSerialised } from './Utils/Common';
+import { SchemaType } from './Utils/Schema';
 
 type EventParams<K extends FilterFunc<ChatClient>> = Parameters<ChatClient[K]>[0];
-
-type GetPublicMethodsFromClass<T> = {
-    [K in keyof T]: T[K] extends (...args: unknown[]) => void ? T[K] : never;
-}[keyof T];
-
-type RemovePromise<T> = T extends Promise<infer R> ? R : never;
-
-type ClassMethods<T> = GetPublicMethodsFromClass<T>;
-type ClassMethodReturnPromises<T> = ReturnType<ClassMethods<T>>;
-type ClassMethodReturnTypes<T> = RemovePromise<ClassMethodReturnPromises<T>>;
 
 interface ISession {
     SessionToken: string;
@@ -225,7 +210,7 @@ export default class TriviaBot {
 
                 await this.AddToReplyQueueIterator(
                     Channel,
-                    `@${User} gets ${Points} points${StreakMessage}! You are now on ${this.SessionMap[Channel].Scores[User]} points!. The answer was ${this.SessionMap[Channel].CorrectLetter}. ${this.SessionMap[Channel].CorrectAnswer}!`,
+                    `@${User} gets ${Points} points${StreakMessage}! You are now on ${this.SessionMap[Channel].Scores[User]} points! The answer was ${this.SessionMap[Channel].CorrectLetter}. ${this.SessionMap[Channel].CorrectAnswer}!`,
                 );
             } else this.UpdateScore(Channel, User, -50);
         }
@@ -238,7 +223,7 @@ export default class TriviaBot {
 
     private AddToReplyQueueIterator = async (Channel: string, Message: string) => {
         const Diff = this.GetTimeDiff(this.LastSelfMessage);
-        const RequiredWaitTime = 5000;
+        const RequiredWaitTime = 10000;
         const Delay = RequiredWaitTime - Diff;
 
         if (Message.length > 500) {

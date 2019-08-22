@@ -3,8 +3,8 @@ import Logger, { Levels } from '@robinlemon/logger';
 import DotEnv from 'dotenv';
 import Path from 'path';
 
-import Schema, { SchemaType } from './Schema';
 import TriviaBot from './TriviaBot';
+import Schema, { SchemaType } from './Utils/Schema';
 
 class Main {
     private Logger = new Logger('GlobalExceptionTracer', Levels.SILLY, Levels.WARN);
@@ -12,7 +12,7 @@ class Main {
 
     public constructor() {
         Joi.validate(
-            DotEnv.config({ path: Path.resolve(__dirname, '../', '.env.swap') }).parsed,
+            DotEnv.config({ path: Path.resolve(__dirname, '../', '.env') }).parsed,
             Schema,
             { convert: true, noDefaults: false },
             async (Err: Error, Modified) => {
