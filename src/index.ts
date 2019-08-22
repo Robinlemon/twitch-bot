@@ -10,7 +10,7 @@ class Main {
     private BotInstance: TriviaBot;
 
     public constructor() {
-        Joi.validate(DotEnv.config().parsed, Schema, { convert: true, noDefaults: false }, (Err: Error, Modified) => {
+        Joi.validate(DotEnv.config().parsed, Schema, { convert: true, noDefaults: false }, async (Err: Error, Modified) => {
             if (Err) {
                 this.Logger.log('Invalid .env');
                 this.Logger.log(Err.message);
@@ -18,8 +18,8 @@ class Main {
             } else {
                 Object.assign(process.env, Modified);
 
-                /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                this.BotInstance = new TriviaBot((process.env as any) as SchemaType);
+                this.BotInstance = new TriviaBot();
+                this.BotInstance.Initialise((process.env as unknown) as SchemaType);
             }
         });
     }
