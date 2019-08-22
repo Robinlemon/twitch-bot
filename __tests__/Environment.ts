@@ -1,5 +1,5 @@
 describe('Environment', () => {
-    test('Should have an NODE_ENV', () => {
-        expect(process.env.NODE_ENV).toBeDefined();
-    });
+    ['NODE_ENV', 'ClientID', 'ClientSecret', 'ChannelsList', 'QuestionFormat'].map(NameSpace =>
+        test(`Should have an ${NameSpace}`, () => expect(process.env[NameSpace]).toBeDefined()),
+    );
 });

@@ -175,11 +175,11 @@ export default class TriviaBot {
             return;
         }
 
-        this.Logger.log(`[AsyncIteratorQueue] [Delay: ${Delay.toFixed(0)}] ${Channel} -> ${Message}`);
+        //this.Logger.log(`[AsyncIteratorQueue] [Delay: ${Delay.toFixed(0)}] ${Channel} -> ${Message}`);
 
         if (Diff < RequiredWaitTime) await this.FakeWait(Delay);
 
-        this.Logger.log(`[AsyncIteratorQueue] [Dispatch] ${Channel} -> ${Message}`);
+        //this.Logger.log(`[AsyncIteratorQueue] [Dispatch] ${Channel} -> ${Message}`);
 
         this.ChatClient.say(Channel, Message);
         this.LastSelfMessage = Date.now();
