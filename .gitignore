@@ -18,6 +18,7 @@ coverage
 # build
 build
 tokens.json
+*swap*
 
 # Dependency directories
 node_modules/
@@ -32,5 +33,5 @@ node_modules/
 .eslintcache
 
 # dotenv environment variables file
-.env
-.env.test
+.env*
+!.env.example

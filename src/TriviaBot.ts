@@ -34,6 +34,13 @@ interface ISession {
     Active: boolean;
     Category: keyof typeof EQuestionCategory;
     AcceptTime: number;
+    TriviaKillID: NodeJS.Timeout;
+    Answered: string[];
+    LastWinner: {
+        Name: string;
+        Streak: number;
+    };
+    Scores: Record<string, number>;
 }
 
 export default class TriviaBot {
@@ -62,7 +69,19 @@ export default class TriviaBot {
         this.SessionMap = this.Channels.reduce<Record<string, ISession>>(
             (Current, ChannelName) =>
                 Object.assign<Record<string, ISession>, Record<string, Partial<ISession>>>(Current, {
-                    [ChannelName]: { Active: false, AcceptTime: Environment.TriviaTime },
+                    [ChannelName]: {
+                        Active: false,
+                        AcceptTime: Environment.TriviaTime,
+                        Answered: [],
+                        LastWinner: {
+                            Name: '',
+                            Streak: 1,
+                        },
+                        Scores: {
+                            thebestboy121: 5850,
+                            oodoomoo: 4250,
+                        },
+                    },
                 }),
             {},
         );
@@ -125,7 +144,7 @@ export default class TriviaBot {
         this.ChatClient.onPrivmsg(this.PrivateMessageHandler);
     };
 
-    private PrivateMessageHandler: EventParams<'onPrivmsg'> = (Channel, User, Message, _Raw) => {
+    private PrivateMessageHandler: EventParams<'onPrivmsg'> = async (Channel, User, Message, _Raw) => {
         if (this.Channels.includes(Channel) === false) return;
 
         const ColouredCommands = Message.replace(/^\s*(\$\w+)/g, Message => Chalk.redBright(Message));
@@ -146,23 +165,69 @@ export default class TriviaBot {
 
         if (IsCommand) {
             if (Command === 'jay1cee') this.AddToReplyQueueIterator(Channel, `@jay1cee T OMEGALUL R Y`);
-            if (Command === 'trivia') this.BeginTrivia(Channel);
+            if (Command === 'trivia' && this.SessionMap[Channel].Active === false) this.BeginTrivia(Channel);
         } else if (this.SessionMap[Channel].Active) {
+            if (this.SessionMap[Channel].Answered.includes(User)) return;
+
             const TheirAnswer = Message.trim().toLowerCase();
             const RequiredAnswer = this.SessionMap[Channel].CorrectLetter.trim().toLowerCase();
 
-            this.Logger.log(`${TheirAnswer} vs ${RequiredAnswer}`, Levels.DEBUG);
+            if ('abcd'.indexOf(TheirAnswer) > -1) this.SessionMap[Channel].Answered.push(User);
+            else return;
 
             if (TheirAnswer === RequiredAnswer) {
-                this.Logger.log(`[${DisplayName}] Trivia::${PrintName} has won the round!`, Levels.DEBUG);
+                clearTimeout(this.SessionMap[Channel].TriviaKillID);
 
                 this.SessionMap[Channel].Active = false;
-                this.AddToReplyQueueIterator(Channel, `@${User} gets Jebaited points! The answer was ${this.SessionMap[Channel].CorrectAnswer}!`);
-            }
 
-            //const Score = FuzzyCompare(this.SessionMap[Channel].CorrectAnswer, Message);
-            //this.Logger.log(`[${DisplayName}] ${PrintName} -> Trivia::Score: ${(Score * 100).toFixed(2)}%`, Levels.DEBUG);
+                if (this.SessionMap[Channel].LastWinner.Name === User) this.SessionMap[Channel].LastWinner.Streak++;
+                else
+                    this.SessionMap[Channel].LastWinner = {
+                        Name: User,
+                        Streak: 1,
+                    };
+
+                let StreakMessage = this.SessionMap[Channel].LastWinner.Streak > 1 ? ' on a ' : '';
+                let Points = 100;
+
+                if (this.SessionMap[Channel].LastWinner.Streak === 2) {
+                    StreakMessage += 'double streak';
+                    Points += 50;
+                }
+
+                if (this.SessionMap[Channel].LastWinner.Streak === 3) {
+                    StreakMessage += 'triple streak';
+                    Points += 75;
+                }
+
+                if (this.SessionMap[Channel].LastWinner.Streak === 4) {
+                    StreakMessage += 'mega streak';
+                    Points += 100;
+                }
+
+                if (this.SessionMap[Channel].LastWinner.Streak >= 5 && this.SessionMap[Channel].LastWinner.Streak < 10) {
+                    StreakMessage += 'ultra streak';
+                    Points += 150;
+                }
+
+                if (this.SessionMap[Channel].LastWinner.Streak >= 10) {
+                    StreakMessage += 'rampage';
+                    Points += 200;
+                }
+
+                this.UpdateScore(Channel, User, Points);
+
+                await this.AddToReplyQueueIterator(
+                    Channel,
+                    `@${User} gets ${Points} points${StreakMessage}! You are now on ${this.SessionMap[Channel].Scores[User]} points!. The answer was ${this.SessionMap[Channel].CorrectLetter}. ${this.SessionMap[Channel].CorrectAnswer}!`,
+                );
+            } else this.UpdateScore(Channel, User, -50);
         }
+    };
+
+    private UpdateScore = (Channel: string, User: string, Amount: number) => {
+        if (typeof this.SessionMap[Channel].Scores[User] === 'undefined') this.SessionMap[Channel].Scores[User] = Amount;
+        else this.SessionMap[Channel].Scores[User] = this.SessionMap[Channel].Scores[User] + Amount;
     };
 
     private AddToReplyQueueIterator = async (Channel: string, Message: string) => {
@@ -175,11 +240,7 @@ export default class TriviaBot {
             return;
         }
 
-        //this.Logger.log(`[AsyncIteratorQueue] [Delay: ${Delay.toFixed(0)}] ${Channel} -> ${Message}`);
-
         if (Diff < RequiredWaitTime) await this.FakeWait(Delay);
-
-        //this.Logger.log(`[AsyncIteratorQueue] [Dispatch] ${Channel} -> ${Message}`);
 
         this.ChatClient.say(Channel, Message);
         this.LastSelfMessage = Date.now();
@@ -248,14 +309,22 @@ export default class TriviaBot {
         await this.AddToReplyQueueIterator(Channel, Message);
 
         this.SessionMap[Channel].Active = true;
+        this.SessionMap[Channel].Answered = [];
         this.SessionMap[Channel].CorrectAnswer = CorrectAnswer;
         this.SessionMap[Channel].CorrectLetter = CorrectAnswerLetter;
 
-        setTimeout(() => {
+        this.SessionMap[Channel].TriviaKillID = setTimeout(() => {
             this.SessionMap[Channel].Active = false;
-            this.Logger.log(`[${Channel.slice(1).toLocaleLowerCase()}] Trivia::Nobody has won the round!`, Levels.DEBUG);
 
-            this.AddToReplyQueueIterator(Channel, `Nobody got it correct! The correct answer was ${this.SessionMap[Channel].CorrectAnswer}. Pepega Clap`);
+            this.SessionMap[Channel].LastWinner = {
+                Name: undefined,
+                Streak: 0,
+            };
+
+            this.AddToReplyQueueIterator(
+                Channel,
+                `Nobody got it correct! The correct answer was ${this.SessionMap[Channel].CorrectLetter}. ${this.SessionMap[Channel].CorrectAnswer}. Pepega Clap`,
+            );
         }, this.SessionMap[Channel].AcceptTime);
     };
 
@@ -328,6 +397,4 @@ export default class TriviaBot {
                 retries: 10,
             },
         );
-
-    private NextQuestion = () => {};
 }
