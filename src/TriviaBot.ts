@@ -152,7 +152,15 @@ export default class TriviaBot {
 
         const WithTag = `@${User}`;
         const IsAuthor = WithTag === '@robinlemonz';
-        const PrintName = IsAuthor ? Chalk.cyanBright(WithTag) : WithTag;
+
+        let PrintName = WithTag;
+
+        if (IsAuthor) PrintName = Chalk.cyanBright(WithTag);
+        if (_Raw.userInfo.isSubscriber) PrintName = Chalk.blueBright(WithTag);
+        if (_Raw.userInfo.isMod) PrintName = Chalk.greenBright(WithTag);
+        if (['global_mod', 'staff'].includes(_Raw.userInfo.userType)) PrintName = Chalk.yellowBright(WithTag);
+        if ('admin' === _Raw.userInfo.userType) PrintName = Chalk.magentaBright(WithTag);
+
         const DisplayName = Channel.slice(1).toLowerCase();
 
         this.Logger.log(`[${DisplayName}] ${PrintName} -> ${ColouredNames}`, Levels.DEBUG);
@@ -162,8 +170,9 @@ export default class TriviaBot {
         const Split = Message.split(' ');
         const IsCommand = Message.charAt(0) === this.CommandPrefix;
         const Command = Split[0] ? Split[0].substr(this.CommandPrefix.length) : '';
+        const Allowed = _Raw.userInfo.isMod || _Raw.userInfo.isSubscriber || ['mod', 'global_mod', 'admin', 'staff'].includes(_Raw.userInfo.userType);
 
-        if (IsCommand) {
+        if (IsCommand && Allowed) {
             if (Command === 'jay1cee') this.AddToReplyQueueIterator(Channel, `@jay1cee T OMEGALUL R Y`);
             if (Command === 'trivia' && this.SessionMap[Channel].Active === false) this.BeginTrivia(Channel);
         } else if (this.SessionMap[Channel].Active) {
