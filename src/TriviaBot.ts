@@ -77,10 +77,7 @@ export default class TriviaBot {
                             Name: '',
                             Streak: 1,
                         },
-                        Scores: {
-                            thebestboy121: 5850,
-                            oodoomoo: 4250,
-                        },
+                        Scores: {},
                     },
                 }),
             {},
@@ -241,7 +238,7 @@ export default class TriviaBot {
 
     private AddToReplyQueueIterator = async (Channel: string, Message: string) => {
         const Diff = this.GetTimeDiff(this.LastSelfMessage);
-        const RequiredWaitTime = (30 / 20) * 1e3;
+        const RequiredWaitTime = 5000;
         const Delay = RequiredWaitTime - Diff;
 
         if (Message.length > 500) {

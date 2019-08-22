@@ -1,6 +1,7 @@
 import Joi from '@hapi/joi';
 import Logger, { Levels } from '@robinlemon/logger';
 import DotEnv from 'dotenv';
+import Path from 'path';
 
 import Schema, { SchemaType } from './Schema';
 import TriviaBot from './TriviaBot';
@@ -10,18 +11,23 @@ class Main {
     private BotInstance: TriviaBot;
 
     public constructor() {
-        Joi.validate(DotEnv.config().parsed, Schema, { convert: true, noDefaults: false }, async (Err: Error, Modified) => {
-            if (Err) {
-                this.Logger.log('Invalid .env');
-                this.Logger.log(Err.message);
-                process.exit(0);
-            } else {
-                Object.assign(process.env, Modified);
+        Joi.validate(
+            DotEnv.config({ path: Path.resolve(__dirname, '../', '.env.swap') }).parsed,
+            Schema,
+            { convert: true, noDefaults: false },
+            async (Err: Error, Modified) => {
+                if (Err) {
+                    this.Logger.log('Invalid .env');
+                    this.Logger.log(Err.message);
+                    process.exit(0);
+                } else {
+                    Object.assign(process.env, Modified);
 
-                this.BotInstance = new TriviaBot();
-                this.BotInstance.Initialise((process.env as unknown) as SchemaType);
-            }
-        });
+                    this.BotInstance = new TriviaBot();
+                    this.BotInstance.Initialise((process.env as unknown) as SchemaType);
+                }
+            },
+        );
     }
 }
 
