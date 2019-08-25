@@ -1,6 +1,6 @@
 {
     "name": "twitch-trivia-bot",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "description": "A TypeScript driven automated Twitch client that provides a trivia functionality in streamers chats.",
     "author": "Lewis Gibson <lewis-gibson@hotmail.com>",
     "license": "MIT",

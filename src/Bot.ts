@@ -12,7 +12,7 @@ import { SchemaType } from './Utils/Schema';
 export default class TriviaBot {
     private TwitchClient: TwitchClient;
     private ChatClient: ChatClient;
-    private Messager: MessageQueueDispatcher;
+    private Messenger: MessageQueueDispatcher;
 
     private Channels = new Map<string, Channel>();
     private TokenInfo: ITokenSerialised;
@@ -36,7 +36,7 @@ export default class TriviaBot {
         });
 
         this.ChatClient = await ChatClient.forTwitchClient(this.TwitchClient);
-        this.Messager = new MessageQueueDispatcher(this.ChatClient);
+        this.Messenger = new MessageQueueDispatcher(this.ChatClient);
 
         this.SetupChat();
     };
@@ -69,7 +69,7 @@ export default class TriviaBot {
         await this.ChatClient.waitForRegistration();
 
         this.Logger.log('Successfully Authenticated to Twitch IRC');
-        for (const ChannelName of this.Channels.keys()) this.Channels.set(ChannelName, new Channel(ChannelName, this.Messager));
+        for (const ChannelName of this.Channels.keys()) this.Channels.set(ChannelName, new Channel(ChannelName, this.Messenger));
         await this.JoinChannels();
 
         this.ChatClient.onPrivmsg(this.PrivateMessageHandler);
