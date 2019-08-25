@@ -4,7 +4,7 @@ module.exports = {
         ecmaVersion: 2019,
         sourceType: 'module',
     },
-    plugins: ['@typescript-eslint', 'jest', 'prettier', 'simple-import-sort'],
+    plugins: ['@typescript-eslint', 'jest', 'prettier', 'simple-import-sort', 'import'],
     env: {
         node: true,
         es6: true,
@@ -24,6 +24,7 @@ module.exports = {
          */
         'prettier/prettier': 'error',
         'simple-import-sort/sort': 'error',
+        'import/no-unresolved': 'error',
 
         /**
          * ESLint
@@ -55,6 +56,15 @@ module.exports = {
         '@typescript-eslint/class-name-casing': 'warn',
         '@typescript-eslint/no-namespace': 'off',
         '@typescript-eslint/member-ordering': 'error',
+        '@typescript-eslint/prefer-interface': 'off',
+    },
+    settings: {
+        'import/parsers': {
+            '@typescript-eslint/parser': ['.ts', '.tsx'],
+        },
+        'import/resolver': {
+            typescript: {},
+        },
     },
     overrides: [
         {

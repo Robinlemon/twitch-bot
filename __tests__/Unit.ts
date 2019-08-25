@@ -1,8 +1,8 @@
 import Crypto from 'crypto';
 import MockedEnv from 'mocked-env';
 
-import { SchemaType } from '../src/Schema';
-import TriviaBot from '../src/TriviaBot';
+import TriviaBot from '../src/Bot';
+import { SchemaType } from '../src/Utils/Schema';
 
 type Convert<T> = {
     [K in keyof T]: T[K];

@@ -3,12 +3,12 @@ import Logger, { Levels } from '@robinlemon/logger';
 import DotEnv from 'dotenv';
 import Path from 'path';
 
-import TriviaBot from './TriviaBot';
+import Bot from './Bot';
 import Schema, { SchemaType } from './Utils/Schema';
 
 class Main {
     private Logger = new Logger('GlobalExceptionTracer', Levels.SILLY, Levels.WARN);
-    private BotInstance: TriviaBot;
+    private BotInstance: Bot;
 
     public constructor() {
         Joi.validate(
@@ -23,7 +23,7 @@ class Main {
                 } else {
                     Object.assign(process.env, Modified);
 
-                    this.BotInstance = new TriviaBot();
+                    this.BotInstance = new Bot();
                     this.BotInstance.Initialise((process.env as unknown) as SchemaType);
                 }
             },

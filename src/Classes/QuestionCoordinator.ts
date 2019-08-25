@@ -1,4 +1,7 @@
-import Common, { Base64Type } from '../Utils/Common';
+import Logger, { Levels } from '@robinlemon/logger';
+import Retry from 'async-retry';
+
+import Common, { Base64Type, ClassMethodReturnTypes } from '../Utils/Common';
 
 export type QuestionDifficulty = 'easy' | 'medium' | 'hard';
 export type QuestionType = 'multiple' | 'boolean';
@@ -75,6 +78,8 @@ interface IRequestArgs<Encoding extends QuestionEncoding> {
 }
 
 export default class QuestionCoordinator {
+    public static Logger = new Logger('QuestionCoordinator');
+
     public static GenerateSession = () =>
         Common.MakeRequest<ITokenResponse>({
             url: 'api_token.php',
@@ -104,3 +109,61 @@ export default class QuestionCoordinator {
             ),
         });
 }
+
+export const RetryQuestionApi = <T extends ClassMethodReturnTypes<typeof QuestionCoordinator>>(
+    Fn: () => Promise<T>,
+    forever: boolean = false,
+    Session?: string,
+): Promise<T> =>
+    Retry(
+        async () => {
+            const Response = await Fn();
+
+            switch (Response.response_code) {
+                /**
+                 * Success - Returned results successfully.
+                 */
+                case EStatusCode.Success:
+                    return Response;
+
+                /**
+                 * No Results - Could not return results.
+                 *
+                 * The API doesn't have enough questions for your query. (Ex. Asking for 50 Questions in a Category that only has 20.)
+                 */
+                case EStatusCode.NoResults:
+                    await RetryQuestionApi(() => QuestionCoordinator.ResetSession(Session), true);
+                    throw new Error('Token Reset');
+
+                /**
+                 * Invalid Parameter - Contains an invalid parameter.
+                 *
+                 * Arguments passed in aren't valid. (Ex. Amount = Five)
+                 */
+                case EStatusCode.InvalidParameter:
+                    throw new Error('Invalid Parameters');
+
+                /**
+                 * Token Not Found - Session Token does not exist.
+                 */
+                case EStatusCode.TokenNotFound:
+                    throw new Error('Token Not Specified');
+
+                /**
+                 * Token Empty - Session Token has returned all possible questions for the specified query.
+                 *
+                 * Resetting the Token is necessary.
+                 */
+                case EStatusCode.TokenEmpty:
+                    await RetryQuestionApi(() => QuestionCoordinator.ResetSession(Session), true);
+                    throw new Error('Token Reset');
+            }
+
+            throw new Error('Malformed Response');
+        },
+        {
+            onRetry: (Err, Attempt) => QuestionCoordinator.Logger.log(`Attempt ${Attempt}: ${Err}`, Levels.WARN),
+            forever,
+            retries: 10,
+        },
+    );

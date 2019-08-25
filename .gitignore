@@ -18,7 +18,7 @@ coverage
 # build
 build
 tokens.json
-*swap*
+todo.txt
 
 # Dependency directories
 node_modules/
