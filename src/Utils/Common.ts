@@ -1,3 +1,4 @@
+import Logger, { Levels } from '@robinlemon/logger';
 import Axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 interface ITokenCommon {
@@ -60,6 +61,8 @@ export type RemoveFirstParam<T extends (...args: any[]) => any> = (...params: Re
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 export default class Common {
+    public static Logger = new Logger('Common', undefined, Levels.WARN);
+
     public static MakeRequest = async <T>(ReqOptions: AxiosRequestConfig) => {
         const Response: AxiosResponse<T> = await Axios({
             ...ReqOptions,
@@ -67,6 +70,26 @@ export default class Common {
         });
 
         return Response.data;
+    };
+
+    public static *CreateNonRepeatingRandomArrayIterator<T>(List: T[]): IterableIterator<T> {
+        while (true) for (const IDx of Common.NonRepeatingRandomRange(0, List.length - 1)) yield List[IDx];
+    }
+
+    public static *NonRepeatingRandomRange(Minimum: number, Maximum: number): IterableIterator<number> {
+        let LastNum = -1;
+
+        while (true)
+            for (const Item of Common.RandomiseArray(new Array(Maximum - Minimum + 1).fill(0).map((_, IDx) => IDx + Minimum)).filter(Num => Num !== LastNum))
+                yield (LastNum = Item);
+    }
+
+    public static RandomiseArray = <T>(List: T[]): T[] => {
+        for (let i = List.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [List[i], List[j]] = [List[j], List[i]];
+        }
+        return List;
     };
 
     public static IndexToAlpha = <T extends string>(Offset: number, Uppercase: boolean = false) => String.fromCharCode((Uppercase ? 65 : 97) + Offset) as T;

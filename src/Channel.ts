@@ -4,7 +4,7 @@ import ChatClient, { ChatUser } from 'twitch-chat-client';
 
 import MessageQueueDispatcher from './Classes/MessageQueueDispatcher';
 import PermissionMultiplexer, { EPermissionStatus } from './Classes/PermissionMultiplexer';
-import { ICommand } from './Decorators/Command';
+import { PostContext, PreContext } from './Decorators/Command';
 import { IMessageHandlerMeta, MessageHandlerType } from './Decorators/MessageHandler';
 import Writable from './Decorators/Writable';
 import ServiceInjector, { ExtensionCommands, IInjectable, Trivia } from './Integrations/index';
@@ -14,7 +14,7 @@ import { ClassMethodNames, ClassMethodNamesFilterMethodSignature, FuncParams, Re
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Channel extends Trivia.Service, ExtensionCommands.Service {}
 export class Channel extends ChannelProps implements IInjectable {
-    public CommandMap = new Map<string, ICommand>();
+    public CommandMap = new Map<string, PostContext>();
     public MessageHandlers: MessageHandlerType[] = [];
 
     protected ChannelName: string;
@@ -23,6 +23,8 @@ export class Channel extends ChannelProps implements IInjectable {
 
     private CommandPrefix = '$';
     private DisplayName: string;
+
+    private CommandContext = new Map<string, object>();
 
     public constructor(ChannelName: string, MessageClient: MessageQueueDispatcher) {
         super();
@@ -63,7 +65,7 @@ export class Channel extends ChannelProps implements IInjectable {
         }
     };
 
-    public RegisterCommand(Identifier: string, CommandObj: ICommand<Channel>) {
+    public RegisterCommand(Identifier: string, CommandObj: PostContext<Channel>) {
         const FuncRef = this[CommandObj.Trigger];
 
         this.Logger.log(`Registered '${Identifier}' -> ${FuncRef.name}()`, Levels.SILLY);
@@ -74,16 +76,37 @@ export class Channel extends ChannelProps implements IInjectable {
         });
     }
 
+    public CreateCommandContext = () => this.CommandContext;
+
     private InitialiseDecoratorMapping(this: InstanceType<typeof Channel>) {
         const ClassProps: (keyof Channel | 'constructor')[] = Object.getOwnPropertyNames(Channel.prototype) as (keyof Channel | 'constructor')[];
+        const WithoutCtor = ClassProps.filter(MethodName => MethodName !== 'constructor');
 
-        const WithoutCtor = ClassProps.filter(MethodName => MethodName !== 'constructor') as ClassMethodNames<Channel>[];
-        const Commands = WithoutCtor.map((MethodName: ClassMethodNames<Channel>) =>
-            Reflect.getMetadata('Command::Options', Channel.prototype[MethodName]),
-        ) as ICommand<Channel>[];
+        /**
+         * Commands
+         */
+        type CommandName = ClassMethodNames<Channel>;
+        type CommandPreregisterInfo = {
+            MethodName: CommandName;
+            Meta: PreContext<Channel>;
+        };
 
-        Commands.filter(Boolean).forEach((Command: ICommand<Channel>) => Command.Identifiers.forEach(Identifier => this.RegisterCommand(Identifier, Command)));
+        const InfoBlocks = WithoutCtor.map<CommandPreregisterInfo>((MethodName: CommandName) => ({
+            MethodName,
+            Meta: Reflect.getMetadata('Command::Options', Channel.prototype[MethodName]),
+        }));
 
+        InfoBlocks.filter(Block => Block.Meta !== undefined).forEach(Command => {
+            this.CommandContext.set(Command.MethodName, Command.Meta.CtxCreator());
+
+            Command.Meta.Identifiers.forEach(Identifier =>
+                this.RegisterCommand(Identifier, { ...Command.Meta, CtxRetriever: () => this.CommandContext.get(Command.MethodName) }),
+            );
+        });
+
+        /**
+         * Message Listeners
+         */
         type ListenerName = Exclude<ClassMethodNamesFilterMethodSignature<Channel, MessageHandlerType>, 'OnMessage'>;
         const MessageHandlers = WithoutCtor as ListenerName[];
 
@@ -108,7 +131,7 @@ export class Channel extends ChannelProps implements IInjectable {
                         (Command.Moderator && PermissionStatus >= EPermissionStatus.Moderator))) ||
                 (Command.StrictSubscription === false && Command.Subscriber && PermissionStatus >= EPermissionStatus.Subscriber)
             )
-                Command.Trigger.bind(this)(User);
+                Command.Trigger.bind({ ...this, ...Command.CtxRetriever() })(User);
         }
     };
 }

@@ -70,12 +70,14 @@ export default class MessageQueueDispatcher {
         }
 
         if (Delay <= 0) {
+            this.LastSelfMessage = Date.now();
             this.Logger.log(`${Channel} -> ${Message}`, Levels.SILLY);
             this.MessageClient.say(Channel, Message);
             Resolve();
-            this.LastSelfMessage = Date.now();
             this.Queue.shift();
-        } else this.NextDispatch = setTimeout(this.Dispatch, Delay);
+        }
+
+        this.NextDispatch = setTimeout(this.Dispatch, Delay);
     };
 
     private TimeDifference = (Timestamp: number) => Date.now() - Timestamp;
