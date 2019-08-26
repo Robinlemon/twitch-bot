@@ -68,7 +68,12 @@ export class Channel extends ChannelProps implements IInjectable {
     public RegisterCommand(Identifier: string, CommandObj: PostContext<Channel>) {
         const FuncRef = this[CommandObj.Trigger];
 
-        this.Logger.log(`Registered '${Identifier}' -> ${FuncRef.name}()`, Levels.SILLY);
+        this.Logger.log(
+            `[${Chalk.yellowBright(CommandObj.ServiceReference.name)}] Registered Namespace ${Chalk.redBright(
+                this.CommandPrefix + Identifier,
+            )} -> ${Chalk.yellowBright(CommandObj.ServiceReference.name)}.${Chalk.blueBright(FuncRef.name)}`,
+            Levels.SILLY,
+        );
         this.CommandMap.set(Identifier, {
             ...CommandObj,
             Trigger: FuncRef,
@@ -113,7 +118,13 @@ export class Channel extends ChannelProps implements IInjectable {
         MessageHandlers.map(MethodName => [MethodName, Reflect.getMetadata('MessageHandler', this[MethodName])])
             .filter(([_MethodName, MetaObj]: [ListenerName, IMessageHandlerMeta]) => MetaObj !== undefined && MetaObj.Valid)
             .forEach(([MethodName, MetaObj]: [ListenerName, IMessageHandlerMeta]) => {
-                this.Logger.log(`Binding IMessageHandler '${MethodName}' on '${MetaObj.ParentClassName}'`, Levels.SILLY);
+                this.Logger.log(
+                    `[${Chalk.yellowBright(MetaObj.ParentClassName)}] Binding MessageHandler ${Chalk.yellowBright(MetaObj.ParentClassName)}.${Chalk.blueBright(
+                        MethodName,
+                    )}`,
+                    Levels.SILLY,
+                );
+
                 this.MessageHandlers.push(this[MethodName]);
             });
     }

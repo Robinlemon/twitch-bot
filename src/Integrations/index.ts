@@ -39,7 +39,10 @@ export default <T extends typeof ChannelProps>(DerivedCtor: typeof Channel, Base
                 }, []);
 
             Pairs.forEach(([Key, Val]) =>
-                InjectorLogger.log(`Injecting ${Key}: ${typeof Val} = ${typeof Val === 'object' ? JSON.stringify(Val) : Val.toString()}`, Levels.VERBOSE),
+                InjectorLogger.log(
+                    `[${BaseCtor.name}] Injecting ${Key}: ${typeof Val} = ${typeof Val === 'object' ? JSON.stringify(Val) : Val.toString()}`,
+                    Levels.VERBOSE,
+                ),
             );
 
             /* eslint-disable @typescript-eslint/no-explicit-any */

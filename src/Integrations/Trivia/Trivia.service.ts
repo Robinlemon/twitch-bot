@@ -33,6 +33,7 @@ class Trivia extends ChannelProps {
     }
 
     @Command({
+        ServiceReference: Trivia,
         Identifiers: ['trivia'],
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,

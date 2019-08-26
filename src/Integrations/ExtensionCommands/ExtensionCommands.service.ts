@@ -10,6 +10,7 @@ class ExtensionCommands extends ChannelProps {
     }
 
     @Command({
+        ServiceReference: ExtensionCommands,
         Identifiers: ['jay1cee'],
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,
@@ -25,6 +26,7 @@ class ExtensionCommands extends ChannelProps {
     }
 
     @Command({
+        ServiceReference: ExtensionCommands,
         Identifiers: ['strangeguy'],
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,
@@ -40,6 +42,7 @@ class ExtensionCommands extends ChannelProps {
     }
 
     @Command({
+        ServiceReference: ExtensionCommands,
         Identifiers: ['yordann'],
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,
@@ -55,6 +58,7 @@ class ExtensionCommands extends ChannelProps {
     }
 
     @Command({
+        ServiceReference: ExtensionCommands,
         Identifiers: ['besty', 'thebestboy121'],
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,
@@ -70,6 +74,7 @@ class ExtensionCommands extends ChannelProps {
     }
 
     @Command({
+        ServiceReference: ExtensionCommands,
         Identifiers: ['svas'],
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,
@@ -85,6 +90,7 @@ class ExtensionCommands extends ChannelProps {
     }
 
     @Command({
+        ServiceReference: ExtensionCommands,
         Identifiers: ['lucentra'],
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,

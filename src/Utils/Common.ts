@@ -26,6 +26,8 @@ export type FuncParams<
     },
     K extends keyof T
 > = Parameters<T[K]>[0];
+
+export type ClassType = { new (...args: any[]): any };
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 export type GetPublicMethodsFromClass<T> = {

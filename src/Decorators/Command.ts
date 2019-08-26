@@ -1,11 +1,13 @@
 import 'reflect-metadata';
 
 import { ChannelProps } from '../test';
-import { ClassMethodNames } from '../Utils/Common';
+import { ClassMethodNames, ClassType } from '../Utils/Common';
 
 export type CommandType = (User: string, ...args: unknown[]) => void;
 
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 interface ICommandDecoratorOpts {
+    ServiceReference: ClassType;
     Identifiers?: string[];
     Moderator?: boolean;
     Subscriber?: boolean;
@@ -18,6 +20,7 @@ type ICtxOption = {
     CtxCreator?: () => object;
 };
 
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 type ICommandStandard<T = 'a'> = Required<ICommandDecoratorOpts> & {
     Trigger: T extends 'a' ? CommandType : ClassMethodNames<T>;
     Params: unknown[];
@@ -27,9 +30,10 @@ export type PreContext<T = 'a'> = Required<ICtxOption> & ICommandStandard<T>;
 export type PostContext<T = 'a'> = Required<ICtxResult> & ICommandStandard<T>;
 
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-export default (Options: ICommandDecoratorOpts & ICtxOption = {}): any => {
+export default (Options: ICommandDecoratorOpts & ICtxOption = { ServiceReference: undefined }): any => {
     return <T extends ChannelProps>(Target: T, PropertyKey: ClassMethodNames<T>, _Descriptor: TypedPropertyDescriptor<T[ClassMethodNames<T>]>) => {
         const DefaultOptions: Required<ICommandDecoratorOpts & ICtxOption> = {
+            ServiceReference: undefined,
             Identifiers: [PropertyKey as string],
             Moderator: false,
             Subscriber: true,
