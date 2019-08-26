@@ -1,4 +1,4 @@
-# twitch-trivia-bot
+# twitch-bot
 
 [![Build Status][travis-image]][travis-url]
 [![dependencies Status][dependencies-image]][dependencies-url]
@@ -6,7 +6,7 @@
 [![Coverage Status][coveralls-image]][coveralls-url]
 [![Codechecks][codechecks-image]][codechecks-url]
 
-A TypeScript driven automated Twitch client that provides a trivia functionality in streamers chats.
+A TypeScript driven automated Twitch client.
 
 ## Tests
 

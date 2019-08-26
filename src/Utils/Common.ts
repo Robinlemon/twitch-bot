@@ -35,6 +35,10 @@ export type GetPublicMethodNamesFromClass<T> = {
     [K in keyof T]: T[K] extends (...args: unknown[]) => void ? K : never;
 }[keyof T];
 
+export type ClassMethodNamesFilterMethodSignature<T, U> = {
+    [K in keyof T]: U extends T[K] ? K : never;
+}[keyof T];
+
 /* All public method names from a class */
 export type ClassMethodNames<T> = GetPublicMethodNamesFromClass<T>;
 

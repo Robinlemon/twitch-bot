@@ -1,19 +1,17 @@
 import 'reflect-metadata';
 
-import QuestionCoordinator, { EQuestionCategory, RetryQuestionApi } from '../Classes/QuestionCoordinator';
-import Command, { CommandType } from '../Decorators/Command';
-import { ChannelProps } from '../test';
-import Common from '../Utils/Common';
+import { Channel } from '../../Channel';
+import QuestionCoordinator, { EQuestionCategory, RetryQuestionApi } from '../../Classes/QuestionCoordinator';
+import Command from '../../Decorators/Command';
+import MessageHandler from '../../Decorators/MessageHandler';
+import { ChannelProps } from '../../test';
+import Common from '../../Utils/Common';
 
 type TriviaAnswer = 'a' | 'b' | 'c' | 'd';
 
-interface Commands {
-    Trivia: CommandType;
-}
-
-export default class Trivia extends ChannelProps implements Commands {
+class Trivia extends ChannelProps {
     protected SessionToken: string;
-    protected CorrectLetter: string;
+    protected CorrectLetter: TriviaAnswer;
     protected CorrectAnswer: string;
     protected Category: keyof typeof EQuestionCategory;
 
@@ -39,7 +37,7 @@ export default class Trivia extends ChannelProps implements Commands {
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,
     })
-    public async Trivia() {
+    public async Trivia(): Promise<void> {
         if (this.Active === true) return;
 
         const { results } = await RetryQuestionApi(
@@ -68,7 +66,7 @@ export default class Trivia extends ChannelProps implements Commands {
 
         const PossibleAnswers = [...IncorrectAnswers];
         const CorrectAnswerIDx = Common.RandomInt(0, 3);
-        const CorrectAnswerLetter = Common.IndexToAlpha<TriviaAnswer>(CorrectAnswerIDx).toLocaleLowerCase();
+        const CorrectAnswerLetter = Common.IndexToAlpha<TriviaAnswer>(CorrectAnswerIDx);
 
         PossibleAnswers.splice(CorrectAnswerIDx, 0, CorrectAnswer);
 
@@ -107,8 +105,18 @@ export default class Trivia extends ChannelProps implements Commands {
         }, this.AcceptTime);
     }
 
-    protected ProcessTriviaAnswer = (User: string, Message: TriviaAnswer) => {
-        if (Message === this.CorrectLetter) {
+    @MessageHandler()
+    public async ProcessTriviaAnswer(this: InstanceType<typeof Channel & Trivia>, User: string, Message: string) {
+        if (
+            this.Active === false ||
+            'abcd'.indexOf(Message.toLocaleLowerCase()) === -1 ||
+            Message.toLocaleLowerCase() === 'abcd' ||
+            this.Answered.includes(User)
+        )
+            return;
+        else this.Answered.push(User);
+
+        if ((Message.toLocaleLowerCase() as TriviaAnswer) === this.CorrectLetter) {
             clearTimeout(this.TriviaKillID);
 
             this.Active = false;
@@ -155,10 +163,12 @@ export default class Trivia extends ChannelProps implements Commands {
                 Message: `@${User} gets ${Points} points${StreakMessage}! You are now on ${this.Scores[User]} points! The answer was ${this.CorrectLetter}. ${this.CorrectAnswer}!`,
             });
         } else this.UpdateScore(User, -50);
-    };
+    }
 
-    private UpdateScore = (User: string, Amount: number) => {
+    public UpdateScore(User: string, Amount: number) {
         if (typeof this.Scores[User] === 'undefined') this.Scores[User] = Amount;
         else this.Scores[User] = this.Scores[User] + Amount;
-    };
+    }
 }
+
+export default Trivia;

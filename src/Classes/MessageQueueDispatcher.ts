@@ -70,7 +70,7 @@ export default class MessageQueueDispatcher {
         }
 
         if (Delay <= 0) {
-            this.Logger.log(`${Channel} -> ${Message}`, Levels.DEBUG);
+            this.Logger.log(`${Channel} -> ${Message}`, Levels.SILLY);
             this.MessageClient.say(Channel, Message);
             Resolve();
             this.LastSelfMessage = Date.now();

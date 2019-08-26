@@ -5,15 +5,17 @@ import ChatClient, { ChatUser } from 'twitch-chat-client';
 import MessageQueueDispatcher from './Classes/MessageQueueDispatcher';
 import PermissionMultiplexer, { EPermissionStatus } from './Classes/PermissionMultiplexer';
 import { ICommand } from './Decorators/Command';
+import { IMessageHandlerMeta, MessageHandlerType } from './Decorators/MessageHandler';
 import Writable from './Decorators/Writable';
-import ServiceInjector, { IInjectable, Trivia } from './Services/index';
+import ServiceInjector, { ExtensionCommands, IInjectable, Trivia } from './Integrations/index';
 import { ChannelProps } from './test';
-import { ClassMethodNames, FuncParams, RemoveFirstParam } from './Utils/Common';
+import { ClassMethodNames, ClassMethodNamesFilterMethodSignature, FuncParams, RemoveFirstParam } from './Utils/Common';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface Channel extends Trivia {}
+export interface Channel extends Trivia.Service, ExtensionCommands.Service {}
 export class Channel extends ChannelProps implements IInjectable {
     public CommandMap = new Map<string, ICommand>();
+    public MessageHandlers: MessageHandlerType[] = [];
 
     protected ChannelName: string;
     protected Logger = new Logger();
@@ -32,7 +34,7 @@ export class Channel extends ChannelProps implements IInjectable {
 
         this.DisplayName = ChannelName.slice(1).toLowerCase();
         this.Logger.SetName(this.DisplayName);
-        this.InitialiseCommands();
+        this.InitialiseDecoratorMapping();
     }
 
     @Writable(true)
@@ -49,36 +51,49 @@ export class Channel extends ChannelProps implements IInjectable {
         if (['global_mod', 'staff'].includes(Raw.userInfo.userType)) PrintName = Chalk.yellowBright(PrintName);
         if ('admin' === Raw.userInfo.userType) PrintName = Chalk.magentaBright(PrintName);
 
-        this.Logger.log(`${PrintName} -> ${ColouredNames}`, Levels.DEBUG);
+        this.Logger.log(`${PrintName} -> ${ColouredNames}`);
 
         const Split = Message.split(' ');
         const IsCommand = Message.charAt(0) === this.CommandPrefix;
         const Command = Split[0] ? Split[0].substr(this.CommandPrefix.length) : '';
 
         if (IsCommand) this.ProcessCommand(User, Command, Raw.userInfo);
+        else {
+            for (const Handler of this.MessageHandlers) Handler.bind(this)(User, Message);
+        }
     };
 
-    private InitialiseCommands = () => {
+    public RegisterCommand(Identifier: string, CommandObj: ICommand<Channel>) {
+        const FuncRef = this[CommandObj.Trigger];
+
+        this.Logger.log(`Registered '${Identifier}' -> ${FuncRef.name}()`, Levels.SILLY);
+        this.CommandMap.set(Identifier, {
+            ...CommandObj,
+            Trigger: FuncRef,
+            Params: [],
+        });
+    }
+
+    private InitialiseDecoratorMapping(this: InstanceType<typeof Channel>) {
         const ClassProps: (keyof Channel | 'constructor')[] = Object.getOwnPropertyNames(Channel.prototype) as (keyof Channel | 'constructor')[];
 
         const WithoutCtor = ClassProps.filter(MethodName => MethodName !== 'constructor') as ClassMethodNames<Channel>[];
-        const Options = WithoutCtor.map((MethodName: ClassMethodNames<Channel>) =>
+        const Commands = WithoutCtor.map((MethodName: ClassMethodNames<Channel>) =>
             Reflect.getMetadata('Command::Options', Channel.prototype[MethodName]),
         ) as ICommand<Channel>[];
 
-        Options.filter(Boolean).forEach((Command: ICommand<Channel>) => {
-            Command.Identifiers.forEach(Identifier => {
-                const FuncRef = this[Command.Trigger];
+        Commands.filter(Boolean).forEach((Command: ICommand<Channel>) => Command.Identifiers.forEach(Identifier => this.RegisterCommand(Identifier, Command)));
 
-                this.Logger.log(`Registered '${Identifier}' -> ${FuncRef.name}()`);
-                this.CommandMap.set(Identifier, {
-                    ...Command,
-                    Trigger: FuncRef,
-                    Params: [],
-                });
+        type ListenerName = Exclude<ClassMethodNamesFilterMethodSignature<Channel, MessageHandlerType>, 'OnMessage'>;
+        const MessageHandlers = WithoutCtor as ListenerName[];
+
+        MessageHandlers.map(MethodName => [MethodName, Reflect.getMetadata('MessageHandler', this[MethodName])])
+            .filter(([_MethodName, MetaObj]: [ListenerName, IMessageHandlerMeta]) => MetaObj !== undefined && MetaObj.Valid)
+            .forEach(([MethodName, MetaObj]: [ListenerName, IMessageHandlerMeta]) => {
+                this.Logger.log(`Binding IMessageHandler '${MethodName}' on '${MetaObj.ParentClassName}'`, Levels.SILLY);
+                this.MessageHandlers.push(this[MethodName]);
             });
-        });
-    };
+    }
 
     private ProcessCommand = (User: string, CommandName: string, UserObj: ChatUser) => {
         const PermissionStatus = PermissionMultiplexer.GetUserPermissions(UserObj);
@@ -92,12 +107,10 @@ export class Channel extends ChannelProps implements IInjectable {
                     ((Command.Subscriber && PermissionStatus & EPermissionStatus.Subscriber) ||
                         (Command.Moderator && PermissionStatus >= EPermissionStatus.Moderator))) ||
                 (Command.StrictSubscription === false && Command.Subscriber && PermissionStatus >= EPermissionStatus.Subscriber)
-            ) {
-                this.Logger.log(`${User} Executed ${this.CommandPrefix}${CommandName}`);
+            )
                 Command.Trigger.bind(this)(User);
-            } else this.Logger.log(`${User} Tried to execute ${this.CommandPrefix}${CommandName} but failed due to permissions.`);
         }
     };
 }
 
-export default ServiceInjector(Channel, [Trivia]);
+export default ServiceInjector(Channel, [Trivia.Service, ExtensionCommands.Service]);
