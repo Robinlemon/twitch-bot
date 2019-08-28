@@ -1,15 +1,17 @@
 import 'reflect-metadata';
 
-import { Channel } from '../../Channel';
+import { promises as fs } from 'fs';
+
+import MessageQueueDispatcher from '../../Classes/MessageQueueDispatcher';
 import QuestionCoordinator, { EQuestionCategory, RetryQuestionApi } from '../../Classes/QuestionCoordinator';
 import Command from '../../Decorators/Command';
 import MessageHandler from '../../Decorators/MessageHandler';
-import { ChannelProps } from '../../test';
 import Common from '../../Utils/Common';
+import Integration from '../index';
 
 type TriviaAnswer = 'a' | 'b' | 'c' | 'd';
 
-class Trivia extends ChannelProps {
+class Trivia extends Integration {
     protected SessionToken: string;
     protected CorrectLetter: TriviaAnswer;
     protected CorrectAnswer: string;
@@ -28,18 +30,23 @@ class Trivia extends ChannelProps {
 
     protected MessageFormat = 'pokiHmm %Question% pokiHmm | %Answers%';
 
-    public constructor() {
+    public constructor(protected ChannelName: string, protected MessageHandler: MessageQueueDispatcher) {
         super();
     }
 
+    public get Identifier() {
+        return this.constructor.name;
+    }
+
     @Command({
-        ServiceReference: Trivia,
         Identifiers: ['trivia'],
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,
     })
-    public async Trivia(): Promise<void> {
+    public Trivia = async () => {
         if (this.Active === true) return;
+
+        this.Active = true;
 
         const { results } = await RetryQuestionApi(
             () =>
@@ -54,7 +61,7 @@ class Trivia extends ChannelProps {
         );
 
         if (results.length === 0) {
-            this.MessageClient.Send({ Channel: this.ChannelName, Message: "Couldn't load Trivia data pepeW" });
+            this.MessageHandler.Send({ Channel: this.ChannelName, Message: "Couldn't load Trivia data pepeW" });
             return;
         }
 
@@ -84,9 +91,8 @@ class Trivia extends ChannelProps {
             typeof DataMap[Match.toLowerCase()] === 'undefined' ? Match : DataMap[Match.toLowerCase()],
         );
 
-        await this.MessageClient.Send({ Channel: this.ChannelName, Message, Type: 'Trivia_Start' });
+        await this.MessageHandler.Send({ Channel: this.ChannelName, Message, Type: 'Trivia_Start' });
 
-        this.Active = true;
         this.Answered = [];
         this.CorrectAnswer = CorrectAnswer;
         this.CorrectLetter = CorrectAnswerLetter;
@@ -99,15 +105,17 @@ class Trivia extends ChannelProps {
                 Streak: 0,
             };
 
-            this.MessageClient.Send({
+            this.MessageHandler.Send({
                 Channel: this.ChannelName,
                 Message: `Nobody got it correct! The correct answer was ${this.CorrectLetter}. ${this.CorrectAnswer}. Pepega Clap`,
             });
         }, this.AcceptTime);
-    }
+    };
 
     @MessageHandler()
-    public async ProcessTriviaAnswer(this: InstanceType<typeof Channel & Trivia>, User: string, Message: string) {
+    public ProcessTriviaAnswer = async (User: string, Message: string) => {
+        await fs.writeFile('test.json', JSON.stringify(this, Common.CircularReplacer(), 4));
+
         if (
             this.Active === false ||
             'abcd'.indexOf(Message.toLocaleLowerCase()) === -1 ||
@@ -159,12 +167,12 @@ class Trivia extends ChannelProps {
 
             this.UpdateScore(User, Points);
 
-            this.MessageClient.Send({
+            this.MessageHandler.Send({
                 Channel: this.ChannelName,
                 Message: `@${User} gets ${Points} points${StreakMessage}! You are now on ${this.Scores[User]} points! The answer was ${this.CorrectLetter}. ${this.CorrectAnswer}!`,
             });
         } else this.UpdateScore(User, -50);
-    }
+    };
 
     public UpdateScore(User: string, Amount: number) {
         if (typeof this.Scores[User] === 'undefined') this.Scores[User] = Amount;

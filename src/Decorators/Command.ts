@@ -1,39 +1,26 @@
 import 'reflect-metadata';
 
-import { ChannelProps } from '../test';
-import { ClassMethodNames, ClassType } from '../Utils/Common';
+import { IntegrationTypeUnion } from '../Integrations';
 
-export type CommandType = (User: string, ...args: unknown[]) => void;
-
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-interface ICommandDecoratorOpts {
-    ServiceReference: ClassType;
+export interface ICommandDecoratorOpts {
     Identifiers?: string[];
     Moderator?: boolean;
     Subscriber?: boolean;
     StrictSubscription?: boolean;
     IncludeProtoNameAsIdentifier?: boolean;
+    CtxCreator?: () => object;
 }
 
-type ICtxResult = { CtxRetriever?: () => object };
-type ICtxOption = {
-    CtxCreator?: () => object;
-};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type CommandType = (Context: Record<string, any>, User: string, ...args: unknown[]) => void;
 
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-type ICommandStandard<T = 'a'> = Required<ICommandDecoratorOpts> & {
-    Trigger: T extends 'a' ? CommandType : ClassMethodNames<T>;
-    Params: unknown[];
-};
+export type ITransformOptions = Required<ICommandDecoratorOpts> & { IntegrationClass: string; MethodName: string };
+export type ICommand = Required<Omit<ICommandDecoratorOpts, 'CtxCreator'> & { CtxRetriever?: () => object; Trigger: CommandType }>;
+export type ContextTransformer = <T extends IntegrationTypeUnion>(Instance: InstanceType<T>, Input: ITransformOptions) => void;
 
-export type PreContext<T = 'a'> = Required<ICtxOption> & ICommandStandard<T>;
-export type PostContext<T = 'a'> = Required<ICtxResult> & ICommandStandard<T>;
-
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-export default (Options: ICommandDecoratorOpts & ICtxOption = { ServiceReference: undefined }): any => {
-    return <T extends ChannelProps>(Target: T, PropertyKey: ClassMethodNames<T>, _Descriptor: TypedPropertyDescriptor<T[ClassMethodNames<T>]>) => {
-        const DefaultOptions: Required<ICommandDecoratorOpts & ICtxOption> = {
-            ServiceReference: undefined,
+const Decorator = (Options: ICommandDecoratorOpts = {}): PropertyDecorator => {
+    return <T extends IntegrationTypeUnion>(Target: T, PropertyKey: string) => {
+        const DefaultOptions: Required<ICommandDecoratorOpts> = {
             Identifiers: [PropertyKey as string],
             Moderator: false,
             Subscriber: true,
@@ -47,17 +34,17 @@ export default (Options: ICommandDecoratorOpts & ICtxOption = { ServiceReference
             ...(DefaultOptions.IncludeProtoNameAsIdentifier && Options.IncludeProtoNameAsIdentifier ? [PropertyKey as string] : []),
         ];
 
-        /* eslint-disable @typescript-eslint/no-explicit-any */
-        const CommandObj: PreContext<T> = {
-            Trigger: PropertyKey as any,
-            Params: Reflect.getMetadata('design:paramtypes', Target, PropertyKey as string),
-            ...Object.assign<Required<ICommandDecoratorOpts & ICtxOption>, ICommandDecoratorOpts & ICtxOption>(DefaultOptions, {
+        const CommandObj: ITransformOptions = {
+            MethodName: PropertyKey as string,
+            IntegrationClass: Target.constructor.name,
+            ...Object.assign<typeof DefaultOptions, ICommandDecoratorOpts>(DefaultOptions, {
                 ...Options,
                 Identifiers,
             }),
         };
-        /* eslint-enable @typescript-eslint/no-explicit-any */
 
-        Reflect.defineMetadata('Command::Options', CommandObj, Target[PropertyKey]);
+        Reflect.defineMetadata('Command::Options', CommandObj, Target, PropertyKey);
     };
 };
+
+export default Decorator;

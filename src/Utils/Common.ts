@@ -82,9 +82,24 @@ export default class Common {
         let LastNum = -1;
 
         while (true)
-            for (const Item of Common.RandomiseArray(new Array(Maximum - Minimum + 1).fill(0).map((_, IDx) => IDx + Minimum)).filter(Num => Num !== LastNum))
+            for (const Item of Common.RandomiseArray(new Array(Maximum - Minimum + 1).fill(0).map((_, IDx) => IDx + Minimum)).filter(
+                Num => Num !== (Maximum - Minimum > 0 ? LastNum : undefined),
+            ))
                 yield (LastNum = Item);
     }
+
+    public static CircularReplacer = () => {
+        const Cache = new WeakSet();
+
+        return (_Key: string, Value: unknown) => {
+            if (typeof Value === 'object' && Value !== null) {
+                if (Cache.has(Value)) return;
+                else Cache.add(Value);
+            }
+
+            return Value;
+        };
+    };
 
     public static RandomiseArray = <T>(List: T[]): T[] => {
         for (let i = List.length - 1; i > 0; i--) {

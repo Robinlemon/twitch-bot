@@ -1,16 +1,20 @@
 import 'reflect-metadata';
 
-import Command from '../../Decorators/Command';
-import { ChannelProps } from '../../test';
+import MessageQueueDispatcher from '../../Classes/MessageQueueDispatcher';
+import Command, { CommandType } from '../../Decorators/Command';
 import Common from '../../Utils/Common';
+import Integration from '../index';
 
-class ExtensionCommands extends ChannelProps {
-    public constructor() {
+class ExtensionCommands extends Integration {
+    public constructor(protected ChannelName: string, protected MessageHandler: MessageQueueDispatcher) {
         super();
     }
 
+    public get Identifier() {
+        return this.constructor.name;
+    }
+
     @Command({
-        ServiceReference: ExtensionCommands,
         Identifiers: ['jay1cee'],
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,
@@ -18,15 +22,14 @@ class ExtensionCommands extends ChannelProps {
             Iterator: Common.CreateNonRepeatingRandomArrayIterator(['T OMEGALUL R Y', 'The Sims is a strategy game Kapp']),
         }),
     })
-    public async Jay1cee(this: ExtensionCommands & { Iterator: IterableIterator<string> }): Promise<void> {
-        this.MessageClient.Send({
+    public Jay1cee: CommandType = (Context, _User) => {
+        this.MessageHandler.Send({
             Channel: this.ChannelName,
-            Message: this.Iterator.next().value,
+            Message: (Context.Iterator as IterableIterator<string>).next().value,
         });
-    }
+    };
 
     @Command({
-        ServiceReference: ExtensionCommands,
         Identifiers: ['strangeguy'],
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,
@@ -34,15 +37,14 @@ class ExtensionCommands extends ChannelProps {
             Iterator: Common.CreateNonRepeatingRandomArrayIterator(["That's so silly SillyChamp"]),
         }),
     })
-    public async StrangeGuy(this: ExtensionCommands & { Iterator: IterableIterator<string> }): Promise<void> {
-        this.MessageClient.Send({
+    public StrangeGuy: CommandType = (Context, _User) => {
+        this.MessageHandler.Send({
             Channel: this.ChannelName,
-            Message: this.Iterator.next().value,
+            Message: (Context.Iterator as IterableIterator<string>).next().value,
         });
-    }
+    };
 
     @Command({
-        ServiceReference: ExtensionCommands,
         Identifiers: ['yordann'],
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,
@@ -50,15 +52,14 @@ class ExtensionCommands extends ChannelProps {
             Iterator: Common.CreateNonRepeatingRandomArrayIterator(["I'm Gay KappaPride"]),
         }),
     })
-    public async Yordann(this: ExtensionCommands & { Iterator: IterableIterator<string> }): Promise<void> {
-        this.MessageClient.Send({
+    public Yordann: CommandType = (Context, _User) => {
+        this.MessageHandler.Send({
             Channel: this.ChannelName,
-            Message: this.Iterator.next().value,
+            Message: (Context.Iterator as IterableIterator<string>).next().value,
         });
-    }
+    };
 
     @Command({
-        ServiceReference: ExtensionCommands,
         Identifiers: ['besty', 'thebestboy121'],
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,
@@ -66,15 +67,14 @@ class ExtensionCommands extends ChannelProps {
             Iterator: Common.CreateNonRepeatingRandomArrayIterator(['Yeah I google, deal with it FeelsWeirdMan']),
         }),
     })
-    public async Besty(this: ExtensionCommands & { Iterator: IterableIterator<string> }): Promise<void> {
-        this.MessageClient.Send({
+    public Besty: CommandType = (Context, _User) => {
+        this.MessageHandler.Send({
             Channel: this.ChannelName,
-            Message: this.Iterator.next().value,
+            Message: (Context.Iterator as IterableIterator<string>).next().value,
         });
-    }
+    };
 
     @Command({
-        ServiceReference: ExtensionCommands,
         Identifiers: ['svas'],
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,
@@ -82,15 +82,14 @@ class ExtensionCommands extends ChannelProps {
             Iterator: Common.CreateNonRepeatingRandomArrayIterator(['PepeLaugh']),
         }),
     })
-    public async Svas(this: ExtensionCommands & { Iterator: IterableIterator<string> }): Promise<void> {
-        this.MessageClient.Send({
+    public Svas: CommandType = (Context, _User) => {
+        this.MessageHandler.Send({
             Channel: this.ChannelName,
-            Message: this.Iterator.next().value,
+            Message: (Context.Iterator as IterableIterator<string>).next().value,
         });
-    }
+    };
 
     @Command({
-        ServiceReference: ExtensionCommands,
         Identifiers: ['lucentra'],
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,
@@ -98,12 +97,57 @@ class ExtensionCommands extends ChannelProps {
             Iterator: Common.CreateNonRepeatingRandomArrayIterator(['WideHardo']),
         }),
     })
-    public async Lucentra(this: ExtensionCommands & { Iterator: IterableIterator<string> }): Promise<void> {
-        this.MessageClient.Send({
+    public Lucentra: CommandType = (Context, _User) => {
+        this.MessageHandler.Send({
             Channel: this.ChannelName,
-            Message: this.Iterator.next().value,
+            Message: (Context.Iterator as IterableIterator<string>).next().value,
         });
-    }
+    };
+
+    @Command({
+        Identifiers: ['viscose'],
+        IncludeProtoNameAsIdentifier: false,
+        Subscriber: true,
+        CtxCreator: () => ({
+            Iterator: Common.CreateNonRepeatingRandomArrayIterator(['TriHard 7']),
+        }),
+    })
+    public Viscose: CommandType = (Context, _User) => {
+        this.MessageHandler.Send({
+            Channel: this.ChannelName,
+            Message: (Context.Iterator as IterableIterator<string>).next().value,
+        });
+    };
+
+    @Command({
+        Identifiers: ['wideviscose'],
+        IncludeProtoNameAsIdentifier: false,
+        Subscriber: true,
+        CtxCreator: () => ({
+            Iterator: Common.CreateNonRepeatingRandomArrayIterator(['WideHard 7']),
+        }),
+    })
+    public WideViscose: CommandType = (Context, _User) => {
+        this.MessageHandler.Send({
+            Channel: this.ChannelName,
+            Message: (Context.Iterator as IterableIterator<string>).next().value,
+        });
+    };
+
+    @Command({
+        Identifiers: ['livid'],
+        IncludeProtoNameAsIdentifier: false,
+        Subscriber: true,
+        CtxCreator: () => ({
+            Iterator: Common.CreateNonRepeatingRandomArrayIterator([':)']),
+        }),
+    })
+    public LividVII: CommandType = (Context, _User) => {
+        this.MessageHandler.Send({
+            Channel: this.ChannelName,
+            Message: (Context.Iterator as IterableIterator<string>).next().value,
+        });
+    };
 }
 
 export default ExtensionCommands;

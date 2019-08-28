@@ -16,7 +16,7 @@ interface IQueueEntry extends IQueueRequest {
 }
 
 export abstract class DispatchClient {
-    protected MessageClient: MessageQueueDispatcher;
+    protected abstract MessageClient: MessageQueueDispatcher;
 }
 
 export default class MessageQueueDispatcher {

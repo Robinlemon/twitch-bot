@@ -1,1 +1,1 @@
-export { default as Service } from './BasicCommandMapping.service';
+export { default } from './BasicCommandMapping.service';

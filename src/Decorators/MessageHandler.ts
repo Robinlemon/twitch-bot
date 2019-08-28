@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 
-import { ChannelProps } from '../test';
-import { ClassMethodNamesFilterMethodSignature } from '../Utils/Common';
+import { IntegrationTypeUnion } from '../Integrations';
 
 export type MessageHandlerType = (User: string, Message: string) => any;
 
@@ -11,8 +10,11 @@ export interface IMessageHandlerMeta {
 }
 
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-export default (): any => <T extends ChannelProps, K extends ClassMethodNamesFilterMethodSignature<T, MessageHandlerType>>(Target: T, PropertyKey: K): any => {
-    const Options: IMessageHandlerMeta = { Valid: true, ParentClassName: Target.constructor.name };
+export default (): PropertyDecorator => <T extends IntegrationTypeUnion>(Target: T, PropertyKey: string) => {
+    const Options: IMessageHandlerMeta = {
+        Valid: true,
+        ParentClassName: Target.constructor.name,
+    };
 
-    Reflect.defineMetadata('MessageHandler', Options, Target[PropertyKey]);
+    Reflect.defineMetadata('MessageHandler::Options', Options, Target, PropertyKey);
 };

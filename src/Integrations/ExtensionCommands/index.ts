@@ -1,1 +1,1 @@
-export { default as Service } from './ExtensionCommands.service';
+export { default } from './ExtensionCommands.service';

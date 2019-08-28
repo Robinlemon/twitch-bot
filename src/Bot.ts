@@ -4,15 +4,16 @@ import * as fs from 'fs-extra';
 import TwitchClient from 'twitch';
 import ChatClient from 'twitch-chat-client';
 
-import { Channel } from './Channel';
+import Channel from './Channel';
 import MessageQueueDispatcher from './Classes/MessageQueueDispatcher';
+import { IntegrationList } from './Integrations';
 import { FuncParams, ITokenResponse, ITokenSerialised } from './Utils/Common';
 import { SchemaType } from './Utils/Schema';
 
-export default class TriviaBot {
+export default class Bot {
     private TwitchClient: TwitchClient;
     private ChatClient: ChatClient;
-    private Messenger: MessageQueueDispatcher;
+    private MessageClient: MessageQueueDispatcher;
 
     private Channels = new Map<string, Channel>();
     private TokenInfo: ITokenSerialised;
@@ -36,7 +37,7 @@ export default class TriviaBot {
         });
 
         this.ChatClient = await ChatClient.forTwitchClient(this.TwitchClient);
-        this.Messenger = new MessageQueueDispatcher(this.ChatClient);
+        this.MessageClient = new MessageQueueDispatcher(this.ChatClient);
 
         this.SetupChat();
     };
@@ -61,6 +62,13 @@ export default class TriviaBot {
         this.Logger.log('Saved OAuth Token');
     };
 
+    private CreateChannel = (ChannelName: string) => {
+        const Instance = new Channel(ChannelName);
+
+        for (const Integration of IntegrationList) Instance.RegisterIntegration(new Integration(ChannelName, this.MessageClient));
+        return Instance;
+    };
+
     private SetupChat = async () => {
         this.Logger.log('Connecting To Twitch IRC');
         await this.ChatClient.connect();
@@ -69,7 +77,7 @@ export default class TriviaBot {
         await this.ChatClient.waitForRegistration();
 
         this.Logger.log('Successfully Authenticated to Twitch IRC');
-        for (const ChannelName of this.Channels.keys()) this.Channels.set(ChannelName, new Channel(ChannelName, this.Messenger));
+        for (const ChannelName of this.Channels.keys()) this.Channels.set(ChannelName, this.CreateChannel(ChannelName));
         await this.JoinChannels();
 
         this.ChatClient.onPrivmsg(this.PrivateMessageHandler);
