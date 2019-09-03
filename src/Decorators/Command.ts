@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 
 import { IntegrationTypeUnion } from '../Integrations';
-
 export interface ICommandDecoratorOpts {
     Identifiers?: string[];
     Moderator?: boolean;
@@ -30,8 +29,10 @@ const Decorator = (Options: ICommandDecoratorOpts = {}): PropertyDecorator => {
         };
 
         const Identifiers = [
-            ...Options.Identifiers,
-            ...(DefaultOptions.IncludeProtoNameAsIdentifier && Options.IncludeProtoNameAsIdentifier ? [PropertyKey as string] : []),
+            ...(typeof Options.Identifiers !== 'undefined' ? Options.Identifiers : []),
+            ...(typeof DefaultOptions.IncludeProtoNameAsIdentifier !== 'undefined' && Options.IncludeProtoNameAsIdentifier === true
+                ? [PropertyKey as string]
+                : []),
         ];
 
         const CommandObj: ITransformOptions = {

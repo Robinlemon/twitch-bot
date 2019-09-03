@@ -2,7 +2,6 @@ module.exports = {
     testEnvironment: 'node',
     preset: 'ts-jest',
     setupFiles: ['dotenv/config'],
-    coveragePathIgnorePatterns: ['TriviaBot.ts'],
+    coveragePathIgnorePatterns: ['Bot.ts'],
     testPathIgnorePatterns: ['<rootDir>/build/', '<rootDir>/node_modules/'],
-    testRegex: '/__tests__/.*\\.[jt]sx?$',
 };

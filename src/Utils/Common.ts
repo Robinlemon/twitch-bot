@@ -101,12 +101,28 @@ export default class Common {
         };
     };
 
-    public static RandomiseArray = <T>(List: T[]): T[] => {
+    public static RandomiseArray = <T>(Input: T[]): T[] => {
+        const List = [...Input];
+
         for (let i = List.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [List[i], List[j]] = [List[j], List[i]];
         }
         return List;
+    };
+
+    public static IterableTake = <T>(Iterator: IterableIterator<T>, Amount: number) => {
+        const Result = [];
+
+        if (Amount <= 0) throw new Error('Invalid index');
+        for (let i = 0; i < Amount; i++) {
+            const { value, done } = Iterator.next();
+
+            if (done && i < Amount) throw new Error(`Generator has fewer than ${Amount} elements`);
+            else Result.push(value);
+        }
+
+        return Result;
     };
 
     public static IndexToAlpha = <T extends string>(Offset: number, Uppercase: boolean = false) => String.fromCharCode((Uppercase ? 65 : 97) + Offset) as T;

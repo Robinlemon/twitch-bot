@@ -74,7 +74,7 @@ module.exports = {
             },
         },
         {
-            files: ['./declarations/**/*', './src/lib/**/*'],
+            files: ['./declarations/**/*'],
             rules: {
                 '@typescript-eslint/no-explicit-any': 'off',
             },
