@@ -1,13 +1,15 @@
 import 'reflect-metadata';
 
-import { promises as fs } from 'fs';
+/* eslint-disable-next-line */
+import Logger, { Levels } from '@robinlemon/logger';
 
 import MessageQueueDispatcher from '../../Classes/MessageQueueDispatcher';
 import QuestionCoordinator, { EQuestionCategory, RetryQuestionApi } from '../../Classes/QuestionCoordinator';
-import Command from '../../Decorators/Command';
+import Command, { CommandType } from '../../Decorators/Command';
 import MessageHandler from '../../Decorators/MessageHandler';
 import Common from '../../Utils/Common';
 import Integration from '../index';
+import TriviaUser from './Trivia.model';
 
 type TriviaAnswer = 'a' | 'b' | 'c' | 'd';
 
@@ -28,9 +30,9 @@ class Trivia extends Integration {
         Streak: number;
     } = { Name: '', Streak: 1 };
 
-    protected MessageFormat = 'pokiHmm %Question% pokiHmm | %Answers%';
+    protected MessageFormat = 'monkaHmm %Question% monkaHmm | %Answers%';
 
-    public constructor(protected ChannelName: string, protected MessageHandler: MessageQueueDispatcher) {
+    public constructor(protected ChannelName: string, protected MessageHandler: MessageQueueDispatcher, protected Logger: Logger) {
         super();
     }
 
@@ -39,11 +41,31 @@ class Trivia extends Integration {
     }
 
     @Command({
+        Identifiers: ['score'],
+        IncludeProtoNameAsIdentifier: false,
+        Subscriber: true,
+    })
+    public Score: CommandType = async (_Context, Username) => {
+        try {
+            const Player = await TriviaUser.findOne({ Username });
+
+            if (Player !== null)
+                this.MessageHandler.Send({
+                    Channel: this.ChannelName,
+                    Message: `@${Username} is on ${Player.Score} points! ${Player.Score > 0 ? 'FeelsOkayMan' : 'FeelsBadMan'} Clap`,
+                });
+            else this.MessageHandler.Send({ Channel: this.ChannelName, Message: `@${Username} I couldn't find your score FeelsBadMan` });
+        } catch (Err) {
+            this.Logger.log(Err, Levels.ERROR);
+        }
+    };
+
+    @Command({
         Identifiers: ['trivia'],
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,
     })
-    public Trivia = async () => {
+    public Trivia: CommandType = async (_Context, _User) => {
         if (this.Active === true) return;
 
         this.Active = true;
@@ -114,8 +136,6 @@ class Trivia extends Integration {
 
     @MessageHandler()
     public ProcessTriviaAnswer = async (User: string, Message: string) => {
-        await fs.writeFile('test.json', JSON.stringify(this, Common.CircularReplacer(), 4));
-
         if (
             this.Active === false ||
             'abcd'.indexOf(Message.toLocaleLowerCase()) === -1 ||
@@ -165,18 +185,39 @@ class Trivia extends Integration {
                 Points += 200;
             }
 
-            this.UpdateScore(User, Points);
+            const NewPoints = await this.UpdateScore(User, Points);
 
-            this.MessageHandler.Send({
-                Channel: this.ChannelName,
-                Message: `@${User} gets ${Points} points${StreakMessage}! You are now on ${this.Scores[User]} points! The answer was ${this.CorrectLetter}. ${this.CorrectAnswer}!`,
-            });
+            if (NewPoints === undefined) {
+                this.MessageHandler.Send({
+                    Channel: this.ChannelName,
+                    Message: `@${User} gets ${Points} points${StreakMessage}! The answer was ${this.CorrectLetter}. ${this.CorrectAnswer}! There was an internal error updating your score profile though FeelsBadMan`,
+                });
+            } else
+                this.MessageHandler.Send({
+                    Channel: this.ChannelName,
+                    Message: `@${User} gets ${Points} points${StreakMessage}! You are now on ${NewPoints} points! The answer was ${this.CorrectLetter}. ${this.CorrectAnswer}!`,
+                });
         } else this.UpdateScore(User, -50);
     };
 
-    public UpdateScore(User: string, Amount: number) {
-        if (typeof this.Scores[User] === 'undefined') this.Scores[User] = Amount;
-        else this.Scores[User] = this.Scores[User] + Amount;
+    private async UpdateScore(Username: string, Amount: number): Promise<undefined | number> {
+        try {
+            const Player = await TriviaUser.findOneAndUpdate(
+                { Username },
+                { Username },
+                {
+                    upsert: true,
+                    new: true,
+                    setDefaultsOnInsert: true,
+                },
+            );
+
+            await Player.UpdateScore(Amount);
+            return Player.Score + Amount;
+        } catch (Err) {
+            this.Logger.log(Err, Levels.ERROR);
+            return undefined;
+        }
     }
 }
 

@@ -4,12 +4,12 @@ import Logger, { Levels } from '@robinlemon/logger';
 import Chalk from 'chalk';
 import ChatClient, { ChatUser } from 'twitch-chat-client';
 
-import PermissionMultiplexer, { EPermissionStatus } from './Classes/PermissionMultiplexer';
-import { CommandType, ContextTransformer, ICommand, ITransformOptions } from './Decorators/Command';
-import { IMessageHandlerMeta, MessageHandlerType } from './Decorators/MessageHandler';
+import { CommandType, ContextTransformer, ICommand, ITransformOptions } from '../Decorators/Command';
+import { IMessageHandlerMeta, MessageHandlerType } from '../Decorators/MessageHandler';
 // eslint-disable-next-line
-import { IntegrationList } from './Integrations';
-import { FuncParams, RemoveFirstParam } from './Utils/Common';
+import { IntegrationList } from '../Integrations';
+import { FuncParams, RemoveFirstParam } from '../Utils/Common';
+import PermissionMultiplexer, { EPermissionStatus } from './PermissionMultiplexer';
 
 export default class Channel {
     private Logger = new Logger();
@@ -24,6 +24,9 @@ export default class Channel {
         this.DisplayName = ChannelName.slice(1).toLowerCase();
         this.Logger.SetName(this.DisplayName);
     }
+
+    public GetDisplayName = (): string => this.DisplayName;
+    public GetLogger = (): Logger => this.Logger;
 
     public RegisterIntegration<T extends (typeof IntegrationList)[number]>(Integration: InstanceType<T>) {
         const InstanceMethods = Object.getOwnPropertyNames(Integration).filter(

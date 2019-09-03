@@ -1,11 +1,13 @@
 import Logger from '@robinlemon/logger';
 import Bluebird from 'bluebird';
 import * as fs from 'fs-extra';
+import Path from 'path';
 import TwitchClient from 'twitch';
 import ChatClient from 'twitch-chat-client';
 
-import Channel from './Channel';
+import Channel from './Classes/Channel';
 import MessageQueueDispatcher from './Classes/MessageQueueDispatcher';
+import MongoConnection from './Classes/MongoConnection';
 import { IntegrationList } from './Integrations';
 import { FuncParams, ITokenResponse, ITokenSerialised } from './Utils/Common';
 import { SchemaType } from './Utils/Schema';
@@ -14,8 +16,10 @@ export default class Bot {
     private TwitchClient: TwitchClient;
     private ChatClient: ChatClient;
     private MessageClient: MessageQueueDispatcher;
+    private MongoConnection: MongoConnection;
 
     private Channels = new Map<string, Channel>();
+    private TokenPath: string;
     private TokenInfo: ITokenSerialised;
 
     private Logger = new Logger(this.constructor.name);
@@ -27,8 +31,14 @@ export default class Bot {
             .map(k => k.trim().toLocaleLowerCase())
             .forEach(ChannelName => this.Channels.set(ChannelName, null));
 
+        this.MongoConnection = new MongoConnection(Environment.MongoDBConnectionString);
+
+        this.Logger.log('Connecting to MongoDB');
+        await this.MongoConnection.Initialise();
+
         this.Logger.log('Initialising Twitch API');
-        this.TokenInfo = JSON.parse(await fs.readFile('./tokens.json', 'UTF-8'));
+        this.TokenPath = Path.join(__dirname, '..', Environment.TokenFile);
+        this.TokenInfo = JSON.parse(await fs.readFile(this.TokenPath, 'UTF-8'));
         this.TwitchClient = await TwitchClient.withCredentials(Environment.ClientID, this.TokenInfo.accessToken, undefined, {
             clientSecret: Environment.ClientSecret,
             refreshToken: this.TokenInfo.refreshToken,
@@ -46,7 +56,7 @@ export default class Bot {
         this.Logger.log('Refreshed OAuth Token');
 
         await fs.writeFile(
-            './tokens.json',
+            this.TokenPath,
             JSON.stringify(
                 {
                     accessToken,
@@ -65,7 +75,7 @@ export default class Bot {
     private CreateChannel = (ChannelName: string) => {
         const Instance = new Channel(ChannelName);
 
-        for (const Integration of IntegrationList) Instance.RegisterIntegration(new Integration(ChannelName, this.MessageClient));
+        for (const Integration of IntegrationList) Instance.RegisterIntegration(new Integration(ChannelName, this.MessageClient, Instance.GetLogger()));
         return Instance;
     };
 
@@ -89,15 +99,14 @@ export default class Bot {
             async Channel => {
                 await this.ChatClient.join(Channel);
 
-                this.Logger.SetName(Channel.slice(1).toLowerCase());
+                this.Logger.SetName(this.Channels.get(Channel).GetDisplayName());
                 this.Logger.log('Joined');
                 this.Logger.SetName(this.constructor.name);
             },
             { concurrency: 10 },
         );
 
-    private PrivateMessageHandler: FuncParams<ChatClient, 'onPrivmsg'> = async (Channel, User, Message, _Raw) => {
-        if (this.Channels.has(Channel) === false) return;
-        else this.Channels.get(Channel).OnMessage(User, Message, _Raw);
+    private PrivateMessageHandler: FuncParams<ChatClient, 'onPrivmsg'> = (Channel, User, Message, Raw) => {
+        if (this.Channels.has(Channel) === true) this.Channels.get(Channel).OnMessage(User, Message, Raw);
     };
 }

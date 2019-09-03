@@ -19,6 +19,10 @@ const Schema = Joi.object().keys({
     TokenFile: Joi.string()
         .default('./tokens.json')
         .description('A file used to store active OAuth access tokens.'),
+    MongoDBConnectionString: Joi.string()
+        .required()
+        .regex(/^mongodb\+srv:\/\/(?:(?:(\w+)?:(\w+)?@)|:?@?)((?:[\w.-])+)(?::(\d+))?(?:\/([\w-]+))?(?:\?([\w-]+=[\w-]+(?:&[\w-]+=[\w-]+)*)?)?$/)
+        .description('The connection string to a mongodb server.'),
 
     /**
      * External

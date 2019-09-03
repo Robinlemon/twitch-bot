@@ -1,12 +1,14 @@
 import 'reflect-metadata';
 
+import Logger from '@robinlemon/logger';
+
 import MessageQueueDispatcher from '../../Classes/MessageQueueDispatcher';
 import Command, { CommandType } from '../../Decorators/Command';
 import Common from '../../Utils/Common';
 import Integration from '../index';
 
 class ExtensionCommands extends Integration {
-    public constructor(protected ChannelName: string, protected MessageHandler: MessageQueueDispatcher) {
+    public constructor(protected ChannelName: string, protected MessageHandler: MessageQueueDispatcher, protected Logger: Logger) {
         super();
     }
 
@@ -90,7 +92,7 @@ class ExtensionCommands extends Integration {
     };
 
     @Command({
-        Identifiers: ['lucentra'],
+        Identifiers: ['luc', 'lucentra'],
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,
         CtxCreator: () => ({
@@ -143,6 +145,21 @@ class ExtensionCommands extends Integration {
         }),
     })
     public LividVII: CommandType = (Context, _User) => {
+        this.MessageHandler.Send({
+            Channel: this.ChannelName,
+            Message: (Context.Iterator as IterableIterator<string>).next().value,
+        });
+    };
+
+    @Command({
+        Identifiers: ['amazeful'],
+        IncludeProtoNameAsIdentifier: false,
+        Subscriber: true,
+        CtxCreator: () => ({
+            Iterator: Common.CreateNonRepeatingRandomArrayIterator(['5Head Idk']),
+        }),
+    })
+    public Amazeful: CommandType = (Context, _User) => {
         this.MessageHandler.Send({
             Channel: this.ChannelName,
             Message: (Context.Iterator as IterableIterator<string>).next().value,
