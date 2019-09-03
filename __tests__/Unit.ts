@@ -17,6 +17,7 @@ describe('Initialisation', () => {
             ClientSecret: Crypto.randomBytes(15).toString('hex'),
             ChannelsList: '',
             QuestionFormat: '%Question% | %Answers%',
+            MongoDBConnectionString: '',
         };
 
         Restore = MockedEnv(MockEnvironment);

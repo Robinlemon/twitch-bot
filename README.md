@@ -1,6 +1,6 @@
 <p align="center">
   <h3 align="center">Twitch Bot</h3>
-  <p align="center">A TypeScript driven automated Twitch client.</p>
+  <p align="center">A TypeScript driven automated Twitch client that provides functionality in streamers chats.</p>
 
   <p align="center">
     <a href="https://travis-ci.com/Robinlemon/twitch-trivia-bot"><img src="https://travis-ci.com/Robinlemon/twitch-trivia-bot.svg?branch=master" alt="Build Status" /></a>
@@ -11,7 +11,7 @@
   </p>
   
   <p align="center">
-    <img align="center" src="./meta/image.png" width="700" />
+    <img align="center" src="./meta/image.png" />
   </p>
 </p>
 
