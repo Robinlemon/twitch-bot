@@ -2,7 +2,7 @@ import Command, { CommandType } from '../Command';
 
 class Test {
     @Command({})
-    public test: CommandType = (_1, _2) => {};
+    public test: CommandType = () => {};
 }
 
 describe('Command Decorator', () => {

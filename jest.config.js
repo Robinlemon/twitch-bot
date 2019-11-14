@@ -1,7 +1,7 @@
 module.exports = {
-    testEnvironment: 'node',
+    coverageDirectory: './coverage/',
     preset: 'ts-jest',
     setupFiles: ['dotenv/config'],
-    coveragePathIgnorePatterns: ['Bot.ts'],
+    testEnvironment: 'node',
     testPathIgnorePatterns: ['<rootDir>/build/', '<rootDir>/node_modules/'],
 };

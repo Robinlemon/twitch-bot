@@ -18,14 +18,14 @@ export type ICommand = Required<Omit<ICommandDecoratorOpts, 'CtxCreator'> & { Ct
 export type ContextTransformer = <T extends IntegrationTypeUnion>(Instance: InstanceType<T>, Input: ITransformOptions) => void;
 
 const Decorator = (Options: ICommandDecoratorOpts = {}): PropertyDecorator => {
-    return <T extends IntegrationTypeUnion>(Target: T, PropertyKey: string) => {
+    return <T extends IntegrationTypeUnion>(Target: T | object, PropertyKey: string | symbol): void => {
         const DefaultOptions: Required<ICommandDecoratorOpts> = {
-            Identifiers: [PropertyKey as string],
-            Moderator: false,
-            Subscriber: true,
-            IncludeProtoNameAsIdentifier: true,
-            StrictSubscription: false,
             CtxCreator: () => ({}),
+            Identifiers: [PropertyKey as string],
+            IncludeProtoNameAsIdentifier: true,
+            Moderator: false,
+            StrictSubscription: false,
+            Subscriber: true,
         };
 
         const Identifiers = [
@@ -36,8 +36,8 @@ const Decorator = (Options: ICommandDecoratorOpts = {}): PropertyDecorator => {
         ];
 
         const CommandObj: ITransformOptions = {
-            MethodName: PropertyKey as string,
             IntegrationClass: Target.constructor.name,
+            MethodName: PropertyKey as string,
             ...Object.assign<typeof DefaultOptions, ICommandDecoratorOpts>(DefaultOptions, {
                 ...Options,
                 Identifiers,

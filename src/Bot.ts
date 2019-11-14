@@ -1,31 +1,31 @@
-import Logger from '@robinlemon/logger';
+import { Logger } from '@robinlemon/logger';
 import Bluebird from 'bluebird';
 import * as fs from 'fs-extra';
 import Path from 'path';
-import TwitchClient from 'twitch';
+import TwitchClient, { AccessToken } from 'twitch';
 import ChatClient from 'twitch-chat-client';
 
 import Channel from './Classes/Channel';
 import MessageQueueDispatcher from './Classes/MessageQueueDispatcher';
 import MongoConnection from './Classes/MongoConnection';
 import { IntegrationList } from './Integrations';
-import { FuncParams, ITokenResponse, ITokenSerialised } from './Utils/Common';
+import { FuncParams, ITokenSerialised } from './Utils/Common';
 import { SchemaType } from './Utils/Schema';
 
 export default class Bot {
-    private TwitchClient: TwitchClient;
-    private ChatClient: ChatClient;
-    private MessageClient: MessageQueueDispatcher;
-    private MongoConnection: MongoConnection;
+    private TwitchClient!: TwitchClient;
+    private ChatClient!: ChatClient;
+    private MessageClient!: MessageQueueDispatcher;
+    private MongoConnection!: MongoConnection;
 
-    private Channels = new Map<string, Channel>();
-    private TokenPath: string;
-    private TokenInfo: ITokenSerialised;
+    private Channels = new Map<string, Channel | null>();
+    private TokenPath!: string;
+    private TokenInfo!: ITokenSerialised;
 
-    private Logger = new Logger(this.constructor.name);
+    private Logger = new Logger({ Name: this.constructor.name });
 
-    public Initialise = async (Environment: SchemaType) => {
-        this.Logger.log('Loaded Environment');
+    public Initialise = async (Environment: SchemaType): Promise<void> => {
+        this.Logger.Log('Loaded Environment');
 
         Environment.ChannelsList.split(',')
             .map(k => k.trim().toLocaleLowerCase())
@@ -33,17 +33,17 @@ export default class Bot {
 
         this.MongoConnection = new MongoConnection(Environment.MongoDBConnectionString);
 
-        this.Logger.log('Connecting to MongoDB');
+        this.Logger.Log('Connecting to MongoDB');
         await this.MongoConnection.Initialise();
 
-        this.Logger.log('Initialising Twitch API');
+        this.Logger.Log('Initialising Twitch API');
         this.TokenPath = Path.join(__dirname, '..', Environment.TokenFile);
         this.TokenInfo = JSON.parse(await fs.readFile(this.TokenPath, 'UTF-8'));
         this.TwitchClient = await TwitchClient.withCredentials(Environment.ClientID, this.TokenInfo.accessToken, undefined, {
             clientSecret: Environment.ClientSecret,
-            refreshToken: this.TokenInfo.refreshToken,
             expiry: this.TokenInfo.expiryTimestamp === null ? null : new Date(this.TokenInfo.expiryTimestamp),
             onRefresh: this.RefreshToken,
+            refreshToken: this.TokenInfo.refreshToken,
         });
 
         this.ChatClient = await ChatClient.forTwitchClient(this.TwitchClient);
@@ -52,16 +52,16 @@ export default class Bot {
         this.SetupChat();
     };
 
-    private RefreshToken = async ({ accessToken, refreshToken, expiryDate }: ITokenResponse) => {
-        this.Logger.log('Refreshed OAuth Token');
+    private RefreshToken = async ({ accessToken, refreshToken, expiryDate }: AccessToken): Promise<void> => {
+        this.Logger.Log('Refreshed OAuth Token');
 
         await fs.writeFile(
             this.TokenPath,
             JSON.stringify(
                 {
                     accessToken,
-                    refreshToken,
                     expiryTimestamp: expiryDate === null ? null : expiryDate.getTime(),
+                    refreshToken,
                 },
                 null,
                 4,
@@ -69,44 +69,45 @@ export default class Bot {
             'UTF-8',
         );
 
-        this.Logger.log('Saved OAuth Token');
+        this.Logger.Log('Saved OAuth Token');
     };
 
-    private CreateChannel = (ChannelName: string) => {
+    private CreateChannel = (ChannelName: string): Channel => {
         const Instance = new Channel(ChannelName);
 
         for (const Integration of IntegrationList) Instance.RegisterIntegration(new Integration(ChannelName, this.MessageClient, Instance.GetLogger()));
         return Instance;
     };
 
-    private SetupChat = async () => {
-        this.Logger.log('Connecting To Twitch IRC');
+    private SetupChat = async (): Promise<void> => {
+        this.Logger.Log('Connecting To Twitch IRC');
         await this.ChatClient.connect();
 
-        this.Logger.log('Connected, Waiting For Registration');
+        this.Logger.Log('Connected, Waiting For Registration');
         await this.ChatClient.waitForRegistration();
 
-        this.Logger.log('Successfully Authenticated to Twitch IRC');
+        this.Logger.Log('Successfully Authenticated to Twitch IRC');
         for (const ChannelName of this.Channels.keys()) this.Channels.set(ChannelName, this.CreateChannel(ChannelName));
         await this.JoinChannels();
 
         this.ChatClient.onPrivmsg(this.PrivateMessageHandler);
     };
 
-    private JoinChannels = async () =>
+    private JoinChannels = async (): Promise<void> => {
         await Bluebird.map(
             this.Channels.keys(),
             async Channel => {
                 await this.ChatClient.join(Channel);
 
-                this.Logger.SetName(this.Channels.get(Channel).GetDisplayName());
-                this.Logger.log('Joined');
-                this.Logger.SetName(this.constructor.name);
+                this.Logger.Name = this.Channels.get(Channel)!.GetDisplayName();
+                this.Logger.Log('Joined');
+                this.Logger.Name = this.constructor.name;
             },
             { concurrency: 10 },
         );
+    };
 
     private PrivateMessageHandler: FuncParams<ChatClient, 'onPrivmsg'> = (Channel, User, Message, Raw) => {
-        if (this.Channels.has(Channel) === true) this.Channels.get(Channel).OnMessage(User, Message, Raw);
+        if (this.Channels.has(Channel)) this.Channels.get(Channel)!.OnMessage(User, Message, Raw);
     };
 }

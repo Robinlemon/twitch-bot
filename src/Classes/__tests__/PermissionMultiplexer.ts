@@ -1,4 +1,4 @@
-import { ChatUser as _ChatUserType } from 'twitch-chat-client';
+import { ChatUser as ChatUserType } from 'twitch-chat-client';
 
 import PermissionMultiplexer, { EPermissionStatus } from '../PermissionMultiplexer';
 
@@ -14,14 +14,14 @@ describe('PermissionMultiplexer', () => {
         userType: UserType;
     }
 
-    const Cases: ([string, IUser, EPermissionStatus])[] = [
+    const Cases: [string, IUser, EPermissionStatus][] = [
         [
             'Normies',
             {
-                isSubscriber: false,
+                badges: new Map<Badges, boolean>(),
                 isMod: false,
 
-                badges: new Map<Badges, boolean>(),
+                isSubscriber: false,
                 userType: '',
             },
             EPermissionStatus.Normal,
@@ -29,10 +29,10 @@ describe('PermissionMultiplexer', () => {
         [
             'Subscribers',
             {
-                isSubscriber: true,
+                badges: new Map<Badges, boolean>(),
                 isMod: false,
 
-                badges: new Map<Badges, boolean>(),
+                isSubscriber: true,
                 userType: '',
             },
             EPermissionStatus.Subscriber,
@@ -40,10 +40,10 @@ describe('PermissionMultiplexer', () => {
         [
             'Moderators',
             {
-                isSubscriber: false,
+                badges: new Map<Badges, boolean>(),
                 isMod: true,
 
-                badges: new Map<Badges, boolean>(),
+                isSubscriber: false,
                 userType: '',
             },
             EPermissionStatus.Moderator,
@@ -51,10 +51,10 @@ describe('PermissionMultiplexer', () => {
         [
             'Moderator Subscribers',
             {
-                isSubscriber: true,
+                badges: new Map<Badges, boolean>(),
                 isMod: true,
 
-                badges: new Map<Badges, boolean>(),
+                isSubscriber: true,
                 userType: '',
             },
             EPermissionStatus.Moderator | EPermissionStatus.Subscriber,
@@ -62,10 +62,10 @@ describe('PermissionMultiplexer', () => {
         [
             'VIPs',
             {
-                isSubscriber: false,
+                badges: new Map<Badges, boolean>([['vip', true]]),
                 isMod: false,
 
-                badges: new Map<Badges, boolean>([['vip', true]]),
+                isSubscriber: false,
                 userType: '',
             },
             EPermissionStatus.Vip,
@@ -73,10 +73,10 @@ describe('PermissionMultiplexer', () => {
         [
             'Broadcasters',
             {
-                isSubscriber: false,
+                badges: new Map<Badges, boolean>([['broadcaster', true]]),
                 isMod: false,
 
-                badges: new Map<Badges, boolean>([['broadcaster', true]]),
+                isSubscriber: false,
                 userType: '',
             },
             EPermissionStatus.Admin,
@@ -84,10 +84,10 @@ describe('PermissionMultiplexer', () => {
         [
             'Global Mods',
             {
-                isSubscriber: false,
+                badges: new Map<Badges, boolean>(),
                 isMod: false,
 
-                badges: new Map<Badges, boolean>(),
+                isSubscriber: false,
                 userType: 'global_mod',
             },
             EPermissionStatus.GlobalMod,
@@ -95,10 +95,10 @@ describe('PermissionMultiplexer', () => {
         [
             'Twitch Staff',
             {
-                isSubscriber: false,
+                badges: new Map<Badges, boolean>(),
                 isMod: false,
 
-                badges: new Map<Badges, boolean>(),
+                isSubscriber: false,
                 userType: 'staff',
             },
             EPermissionStatus.Staff,
@@ -106,10 +106,10 @@ describe('PermissionMultiplexer', () => {
         [
             'Subscribed Staff',
             {
-                isSubscriber: true,
+                badges: new Map<Badges, boolean>(),
                 isMod: false,
 
-                badges: new Map<Badges, boolean>(),
+                isSubscriber: true,
                 userType: 'staff',
             },
             EPermissionStatus.Subscriber | EPermissionStatus.Staff,
@@ -117,6 +117,6 @@ describe('PermissionMultiplexer', () => {
     ];
 
     test.each(Cases)('Should Give %p Correct Perms', (_, ChatUser, PermissionLevel) => {
-        expect(PermissionMultiplexer.GetUserPermissions(ChatUser as _ChatUserType)).toBe(PermissionLevel);
+        expect(PermissionMultiplexer.GetUserPermissions((ChatUser as unknown) as ChatUserType)).toBe(PermissionLevel);
     });
 });

@@ -2,7 +2,7 @@ import MessageHandler, { MessageHandlerType } from '../MessageHandler';
 
 class Test {
     @MessageHandler()
-    public test: MessageHandlerType = (_1, _2) => {};
+    public test: MessageHandlerType = () => {};
 }
 
 describe('Command Decorator', () => {

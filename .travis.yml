@@ -1,15 +1,17 @@
---- 
-before_install: 
+---
+before_install:
   - "npm update"
 cache: npm
-install: 
+branches:
+  only:
+    - master
+install:
   - "npm install"
 language: node_js
-node_js: 
-  - lts/*
+node_js:
   - node
-script: 
+script:
   - "npm run build"
-  - "npm run coveralls"
-  - "npm run codechecks"
+  - "npx codechecks"
+  - "npm run coverage"
 sudo: false

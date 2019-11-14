@@ -1,26 +1,26 @@
-import Logger, { Levels } from '@robinlemon/logger';
+import { Logger, LogLevel } from '@robinlemon/logger';
 import { MongoError } from 'mongodb';
 import Mongoose from 'mongoose';
 
 export default class MongoConnection {
-    private Logger = new Logger(this.constructor.name, undefined, Levels.ERROR);
+    private Logger = new Logger({ DefaultLevel: LogLevel.ERROR, Name: this.constructor.name });
 
     public constructor(private ConnectionString: string) {}
 
-    public Initialise = async () => {
+    public Initialise = async (): Promise<void> => {
         await this.Connect();
 
         Mongoose.connection.on('error', (Err: MongoError) => {
-            this.Logger.log(Err);
+            this.Logger.Log(Err);
         });
 
         Mongoose.connection.on('timeout', (Err: MongoError) => {
-            this.Logger.log(Err);
+            this.Logger.Log(Err);
             this.Connect();
         });
 
         Mongoose.connection.on('close', (Err: MongoError) => {
-            this.Logger.log(Err);
+            this.Logger.Log(Err);
             this.Connect();
         });
     };
@@ -28,15 +28,16 @@ export default class MongoConnection {
     private Connect = async (): Promise<void> => {
         try {
             await Mongoose.connect(this.ConnectionString, {
-                useNewUrlParser: true,
                 autoReconnect: true,
-                useFindAndModify: false,
                 useCreateIndex: true,
+                useFindAndModify: false,
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
             });
 
-            this.Logger.log('Connected to MongoDB', Levels.DEBUG);
+            this.Logger.Log(LogLevel.DEBUG, 'Connected to MongoDB');
         } catch (Err) {
-            this.Logger.log(Err);
+            this.Logger.Log(Err);
         }
     };
 }

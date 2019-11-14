@@ -12,12 +12,12 @@ describe('Initialisation', () => {
     let Restore: ReturnType<typeof MockedEnv>;
 
     beforeEach(() => {
-        const MockEnvironment: Convert<SchemaType> = {
+        const MockEnvironment: Partial<Convert<SchemaType>> = {
+            ChannelsList: '',
             ClientID: Crypto.randomBytes(15).toString('hex'),
             ClientSecret: Crypto.randomBytes(15).toString('hex'),
-            ChannelsList: '',
-            QuestionFormat: '%Question% | %Answers%',
             MongoDBConnectionString: '',
+            QuestionFormat: '%Question% | %Answers%',
         };
 
         Restore = MockedEnv(MockEnvironment);

@@ -1,3 +1,27 @@
 {
-    "typescript.tsdk": "node_modules\\typescript\\lib"
+    "typescript.tsdk": "node_modules\\typescript\\lib",
+    "discord.enabled": false,
+    "eslint.enable": true,
+    "eslint.autoFixOnSave": true,
+    "eslint.lintTask.enable": true,
+    "eslint.validate": [{
+            "language": "javascript",
+            "autoFix": true
+        },
+        {
+            "language": "typescript",
+            "autoFix": true
+        },
+        {
+            "language": "json",
+            "autoFix": true
+        }, {
+            "language": "jsonc",
+            "autoFix": true
+        },
+        {
+            "language": "markdown",
+            "autoFix": true
+        }
+    ]
 }

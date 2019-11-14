@@ -11,7 +11,7 @@ export enum EPermissionStatus {
 }
 
 export default class PermissionMultiplexer {
-    public static GetUserPermissions = (User: ChatUser) => {
+    public static GetUserPermissions = (User: ChatUser): EPermissionStatus => {
         let PermissionLevel = EPermissionStatus.Normal;
 
         /* Subscriber */

@@ -1,17 +1,16 @@
-import { instanceMethod, InstanceType, prop, Typegoose } from 'typegoose';
+import { DocumentType, getModelForClass, prop } from '@typegoose/typegoose';
 
-class Player extends Typegoose {
-    @prop({ unique: true, maxlength: 64, required: true })
+class Player {
+    @prop({ maxlength: 64, required: true, unique: true })
     public Username!: string;
 
     @prop({ default: 0 })
-    public Score: number;
+    public Score!: number;
 
-    @instanceMethod
-    public UpdateScore(this: InstanceType<Player>, Amount: number) {
+    public UpdateScore(this: DocumentType<Player>, Amount: number): void {
         this.Score += Amount;
         this.save();
     }
 }
 
-export default new Player().getModelForClass(Player);
+export default getModelForClass(Player);

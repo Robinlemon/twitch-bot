@@ -4,9 +4,8 @@
 
   <p align="center">
     <a href="https://travis-ci.com/Robinlemon/twitch-bot"><img src="https://travis-ci.com/Robinlemon/twitch-bot.svg?branch=master" alt="Build Status" /></a>
-    <a href="https://david-dm.org/Robinlemon/twitch-bot"><img src="https://david-dm.org/Robinlemon/twitch-bot/status.svg" alt="dependencies Status" /></a>
-    <a href="https://david-dm.org/Robinlemon/twitch-bot?type=dev"><img src="https://david-dm.org/Robinlemon/twitch-bot/dev-status.svg" alt="devDependencies Status"/></a>
-    <a href="https://coveralls.io/github/Robinlemon/twitch-bot?branch=master"><img src="https://coveralls.io/repos/github/Robinlemon/twitch-bot/badge.svg?branch=master" alt="Coverage Status" /></a>
+    <a href="https://codecov.io/gh/Robinlemon/twitch-bot"><img src="https://codecov.io/gh/Robinlemon/twitch-bot/branch/master/graph/badge.svg" alt="Coverage Status" /></a>
+    <a href="https://github.com/codechecks/typecov"><img src="https://img.shields.io/badge/dynamic/json.svg?label=type-coverage&prefix=%E2%89%A5&suffix=%&query=$.typeCoverage.atLeast&uri=https://raw.githubusercontent.com/Robinlemon/twitch-bot/master/package.json" alt="TypeCov" /></a>
     <a href="https://codechecks.io"><img src="https://raw.githubusercontent.com/codechecks/docs/master/images/badges/badge-green.svg?sanitize=true" alt="Codechecks" /></a>
   </p>
   
@@ -26,4 +25,4 @@ $ npm test
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE.md)

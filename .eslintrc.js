@@ -1,83 +1,81 @@
+/* eslint-disable sort-keys */
+/* eslint-disable sort-keys-fix/sort-keys-fix */
 module.exports = {
-    parser: '@typescript-eslint/parser',
-    parserOptions: {
-        ecmaVersion: 2019,
-        sourceType: 'module',
-    },
-    plugins: ['@typescript-eslint', 'jest', 'prettier', 'simple-import-sort', 'import'],
     env: {
         node: true,
-        es6: true,
+        es2020: true,
+    },
+    parserOptions: {
+        sourceType: 'module',
     },
     extends: [
-        'plugin:@typescript-eslint/recommended',
+        /* Base ESLint Config */
+        'eslint:recommended',
+
+        /* Lint JSON Files */
+        'plugin:json/recommended-with-comments',
+
+        /* Prettier Integration */
         'prettier',
-        'prettier/@typescript-eslint',
-        'plugin:jest/recommended',
-        'plugin:import/errors',
-        'plugin:import/warnings',
-        'plugin:import/typescript',
+        'plugin:prettier/recommended',
     ],
+    plugins: ['@typescript-eslint', 'simple-import-sort', 'json', 'markdown', 'optimize-regex', 'sort-keys-fix', 'prettier'],
     rules: {
-        /**
-         * Plugins
-         */
-        'prettier/prettier': 'error',
+        /* Object Formatting */
+        'object-shorthand': ['error', 'always', { avoidQuotes: true }],
+        'sort-keys': ['error', 'asc', { caseSensitive: true, natural: false, minKeys: 2 }],
+        'sort-keys-fix/sort-keys-fix': 'error',
+
+        /* JSON */
+        'json/*': 'error',
+
+        /* Regular Expressions */
+        'optimize-regex/optimize-regex': 'error',
+
+        /* Sorting */
         'simple-import-sort/sort': 'error',
-        'import/no-unresolved': 'error',
-
-        /**
-         * ESLint
-         */
-        'quote-props': ['error', 'as-needed'],
-        'max-len': [
-            'error',
-            {
-                ignoreComments: true,
-                code: 300,
-            },
-        ],
-
-        /**
-         * @typescript-eslint
-         */
-        '@typescript-eslint/no-unused-vars': [
-            'warn',
-            {
-                argsIgnorePattern: '^_',
-                varsIgnorePattern: '^_',
-            },
-        ],
-        '@typescript-eslint/explicit-function-return-type': 'off',
-        '@typescript-eslint/interface-name-prefix': 'off',
-        '@typescript-eslint/no-parameter-properties': 'off',
-        '@typescript-eslint/camelcase': 'off',
-        '@typescript-eslint/no-var-requires': 'off',
-        '@typescript-eslint/class-name-casing': 'warn',
-        '@typescript-eslint/no-namespace': 'off',
-        '@typescript-eslint/member-ordering': 'error',
-        '@typescript-eslint/prefer-interface': 'off',
     },
-    settings: {
-        'import/parsers': {
-            '@typescript-eslint/parser': ['.ts', '.tsx'],
-        },
-        'import/resolver': {
-            typescript: {},
-        },
-    },
+    globals: { Atomics: 'readonly', SharedArrayBuffer: 'readonly' },
     overrides: [
         {
-            files: './__tests__/**/*',
-            env: {
-                'jest/globals': true,
+            files: ['*.ts'],
+            parser: '@typescript-eslint/parser',
+            parserOptions: {
+                //project: './tsconfig.json',
+                sourceType: 'module',
             },
-        },
-        {
-            files: ['./declarations/**/*'],
+            plugins: ['@typescript-eslint'],
+            extends: [
+                /* TypeScript ESLint */
+                'plugin:@typescript-eslint/recommended',
+                'plugin:@typescript-eslint/eslint-recommended',
+                //'plugin:@typescript-eslint/recommended-requiring-type-checking',
+
+                /* Import */
+                'plugin:import/errors',
+                'plugin:import/warnings',
+                'plugin:import/typescript',
+            ],
             rules: {
-                '@typescript-eslint/no-explicit-any': 'off',
+                /* TypeScript Linting */
+                '@typescript-eslint/member-ordering': 'error',
+                '@typescript-eslint/interface-name-prefix': 'off',
+                '@typescript-eslint/no-non-null-assertion': 'off',
+                '@typescript-eslint/no-parameter-properties': 'off',
+                '@typescript-eslint/camelcase': 'off',
             },
+            overrides: [
+                {
+                    files: ['**/__tests__/**/*', '**/*.{spec,test}.ts'],
+                    env: {
+                        'jest/globals': true,
+                    },
+                    extends: [
+                        /* Jest */
+                        'plugin:jest/recommended',
+                    ],
+                },
+            ],
         },
     ],
 };

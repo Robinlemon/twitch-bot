@@ -1,4 +1,4 @@
-import Logger, { Levels } from '@robinlemon/logger';
+import { Logger, LogLevel } from '@robinlemon/logger';
 import Retry from 'async-retry';
 
 import Common, { Base64Type, ClassMethodReturnTypes } from '../Utils/Common';
@@ -43,20 +43,20 @@ export enum EQuestionCategory {
     'Entertainment: Cartoon & Animations' = 32,
 }
 
-interface ICommonResponse {
+export interface ICommonResponse {
     response_code: EStatusCode;
 }
 
-interface ITokenResponse extends ICommonResponse {
+export interface ITokenResponse extends ICommonResponse {
     response_message: string;
     token: string;
 }
 
-interface ITokenUpdate extends ICommonResponse {
+export interface ITokenUpdate extends ICommonResponse {
     token: string;
 }
 
-interface IQuestion<Encoding extends QuestionEncoding> {
+export interface IQuestion<Encoding extends QuestionEncoding> {
     category: Encoding extends 'base64' ? Base64Type : EQuestionCategory;
     type: Encoding extends 'base64' ? Base64Type : QuestionType;
     difficulty: Encoding extends 'base64' ? Base64Type : QuestionDifficulty;
@@ -65,11 +65,11 @@ interface IQuestion<Encoding extends QuestionEncoding> {
     incorrect_answers: (Encoding extends 'base64' ? Base64Type : string)[];
 }
 
-interface IQuestionsResponse<Encoding extends QuestionEncoding> extends ICommonResponse {
+export interface IQuestionsResponse<Encoding extends QuestionEncoding> extends ICommonResponse {
     results: IQuestion<Encoding>[];
 }
 
-interface IRequestArgs<Encoding extends QuestionEncoding> {
+export interface IRequestArgs<Encoding extends QuestionEncoding> {
     amount: number;
     category?: EQuestionCategory;
     difficulty?: QuestionDifficulty;
@@ -78,28 +78,29 @@ interface IRequestArgs<Encoding extends QuestionEncoding> {
 }
 
 export default class QuestionCoordinator {
-    public static Logger = new Logger('QuestionCoordinator');
+    public static Logger = new Logger({ Name: 'QuestionCoordinator' });
 
-    public static GenerateSession = () =>
-        Common.MakeRequest<ITokenResponse>({
-            url: 'api_token.php',
+    public static GenerateSession(): Promise<ITokenResponse | never> {
+        return Common.MakeRequest<ITokenResponse>({
             params: {
                 command: 'request',
             },
-        });
-
-    public static ResetSession = (Session: string) =>
-        Common.MakeRequest<ITokenUpdate>({
             url: 'api_token.php',
+        });
+    }
+
+    public static ResetSession(Session: string): Promise<ITokenUpdate | never> {
+        return Common.MakeRequest<ITokenUpdate>({
             params: {
                 command: 'reset',
                 token: Session,
             },
+            url: 'api_token.php',
         });
+    }
 
-    public static GetQuestions = <T extends QuestionEncoding>(Session: string, Options: IRequestArgs<T>) =>
-        Common.MakeRequest<IQuestionsResponse<T>>({
-            url: 'api.php',
+    public static GetQuestions<T extends QuestionEncoding>(Session: string, Options: IRequestArgs<T>): Promise<IQuestionsResponse<T> | never> {
+        return Common.MakeRequest<IQuestionsResponse<T>>({
             params: Object.assign(
                 {
                     amount: 10,
@@ -107,16 +108,18 @@ export default class QuestionCoordinator {
                 },
                 Options,
             ),
+            url: 'api.php',
         });
+    }
 }
 
 export const RetryQuestionApi = <T extends ClassMethodReturnTypes<typeof QuestionCoordinator>>(
     Fn: () => Promise<T>,
-    forever: boolean = false,
+    forever = false,
     Session?: string,
 ): Promise<T> =>
     Retry(
-        async () => {
+        async (): Promise<T> => {
             const Response = await Fn();
 
             switch (Response.response_code) {
@@ -132,7 +135,7 @@ export const RetryQuestionApi = <T extends ClassMethodReturnTypes<typeof Questio
                  * The API doesn't have enough questions for your query. (Ex. Asking for 50 Questions in a Category that only has 20.)
                  */
                 case EStatusCode.NoResults:
-                    await RetryQuestionApi(() => QuestionCoordinator.ResetSession(Session), true);
+                    await RetryQuestionApi((): Promise<ITokenUpdate> => QuestionCoordinator.ResetSession(Session!), true);
                     throw new Error('Token Reset');
 
                 /**
@@ -155,15 +158,18 @@ export const RetryQuestionApi = <T extends ClassMethodReturnTypes<typeof Questio
                  * Resetting the Token is necessary.
                  */
                 case EStatusCode.TokenEmpty:
-                    await RetryQuestionApi(() => QuestionCoordinator.ResetSession(Session), true);
+                    await RetryQuestionApi(() => QuestionCoordinator.ResetSession(Session!), true);
                     throw new Error('Token Reset');
-            }
 
-            throw new Error('Malformed Response');
+                default:
+                    throw new Error('Malformed Response');
+            }
         },
         {
-            onRetry: (Err, Attempt) => QuestionCoordinator.Logger.log(`Attempt ${Attempt}: ${Err}`, Levels.WARN),
             forever,
+            onRetry: (Err, Attempt): void => {
+                QuestionCoordinator.Logger.Log(LogLevel.WARN, `Attempt ${Attempt}: ${Err}`);
+            },
             retries: 10,
         },
     );

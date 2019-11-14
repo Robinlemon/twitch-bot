@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 
 /* eslint-disable-next-line */
-import Logger, { Levels } from '@robinlemon/logger';
+import{ Logger, LogLevel } from '@robinlemon/logger';
 
 import MessageQueueDispatcher from '../../Classes/MessageQueueDispatcher';
-import QuestionCoordinator, { EQuestionCategory, RetryQuestionApi } from '../../Classes/QuestionCoordinator';
+import QuestionCoordinator, { EQuestionCategory, IQuestionsResponse, RetryQuestionApi } from '../../Classes/QuestionCoordinator';
 import Command, { CommandType } from '../../Decorators/Command';
 import MessageHandler from '../../Decorators/MessageHandler';
 import Common from '../../Utils/Common';
@@ -14,15 +14,15 @@ import TriviaUser from './Trivia.model';
 type TriviaAnswer = 'a' | 'b' | 'c' | 'd';
 
 class Trivia extends Integration {
-    protected SessionToken: string;
-    protected CorrectLetter: TriviaAnswer;
-    protected CorrectAnswer: string;
-    protected Category: keyof typeof EQuestionCategory;
+    protected SessionToken!: string;
+    protected CorrectLetter!: TriviaAnswer;
+    protected CorrectAnswer!: string;
+    protected Category!: keyof typeof EQuestionCategory;
 
-    protected TriviaKillID: NodeJS.Timeout;
+    protected TriviaKillID!: NodeJS.Timeout;
 
-    protected AcceptTime: number = 10000;
-    protected Active: boolean = false;
+    protected AcceptTime = 10000;
+    protected Active = false;
     protected Answered: string[] = [];
     protected Scores: Record<string, number> = {};
     protected LastWinner: {
@@ -36,7 +36,7 @@ class Trivia extends Integration {
         super();
     }
 
-    public get Identifier() {
+    public get Identifier(): string {
         return this.constructor.name;
     }
 
@@ -45,7 +45,7 @@ class Trivia extends Integration {
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,
     })
-    public Score: CommandType = async (_Context, Username) => {
+    public Score: CommandType = async (_Context, Username): Promise<void> => {
         try {
             const Player = await TriviaUser.findOne({ Username });
 
@@ -56,7 +56,7 @@ class Trivia extends Integration {
                 });
             else this.MessageHandler.Send({ Channel: this.ChannelName, Message: `@${Username} I couldn't find your score FeelsBadMan` });
         } catch (Err) {
-            this.Logger.log(Err, Levels.ERROR);
+            this.Logger.Log(LogLevel.ERROR, Err);
         }
     };
 
@@ -65,13 +65,13 @@ class Trivia extends Integration {
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,
     })
-    public Trivia: CommandType = async (_Context, _User) => {
+    public Trivia: CommandType = async (): Promise<void> => {
         if (this.Active === true) return;
 
         this.Active = true;
 
         const { results } = await RetryQuestionApi(
-            () =>
+            (): Promise<IQuestionsResponse<'base64'>> =>
                 QuestionCoordinator.GetQuestions(this.SessionToken, {
                     amount: 1,
                     difficulty: 'easy',
@@ -100,16 +100,15 @@ class Trivia extends Integration {
 
         PossibleAnswers.splice(CorrectAnswerIDx, 0, CorrectAnswer);
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const DataMap: Record<string, any> = {
+        const DataMap: Record<string, string> = {
+            '%answers%': PossibleAnswers.map((Item, IDx): string => `${Common.IndexToAlpha<TriviaAnswer>(IDx).toLocaleUpperCase()}. ${Item}`).join(' | '),
             '%category': Category,
-            '%type%': Type,
             '%difficulty%': Difficulty,
             '%question%': Question,
-            '%answers%': PossibleAnswers.map((Item, IDx) => `${Common.IndexToAlpha<TriviaAnswer>(IDx).toLocaleUpperCase()}. ${Item}`).join(' | '),
+            '%type%': Type,
         };
 
-        const Message = this.MessageFormat.replace(/%[^%]+%/g, Match =>
+        const Message = this.MessageFormat.replace(/%[^%]+%/g, (Match: string): string =>
             typeof DataMap[Match.toLowerCase()] === 'undefined' ? Match : DataMap[Match.toLowerCase()],
         );
 
@@ -119,11 +118,11 @@ class Trivia extends Integration {
         this.CorrectAnswer = CorrectAnswer;
         this.CorrectLetter = CorrectAnswerLetter;
 
-        this.TriviaKillID = setTimeout(() => {
+        this.TriviaKillID = setTimeout((): void => {
             this.Active = false;
 
             this.LastWinner = {
-                Name: undefined,
+                Name: '',
                 Streak: 0,
             };
 
@@ -135,7 +134,7 @@ class Trivia extends Integration {
     };
 
     @MessageHandler()
-    public ProcessTriviaAnswer = async (User: string, Message: string) => {
+    public ProcessTriviaAnswer = async (User: string, Message: string): Promise<void> => {
         if (
             this.Active === false ||
             'abcd'.indexOf(Message.toLocaleLowerCase()) === -1 ||
@@ -206,16 +205,16 @@ class Trivia extends Integration {
                 { Username },
                 { Username },
                 {
-                    upsert: true,
                     new: true,
                     setDefaultsOnInsert: true,
+                    upsert: true,
                 },
             );
 
             await Player.UpdateScore(Amount);
             return Player.Score + Amount;
         } catch (Err) {
-            this.Logger.log(Err, Levels.ERROR);
+            this.Logger.Log(LogLevel.ERROR, Err);
             return undefined;
         }
     }

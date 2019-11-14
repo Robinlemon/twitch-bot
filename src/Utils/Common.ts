@@ -1,13 +1,9 @@
-import Logger, { Levels } from '@robinlemon/logger';
+import { Logger } from '@robinlemon/logger';
 import Axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 interface ITokenCommon {
     accessToken: string;
     refreshToken: string;
-}
-
-export interface ITokenResponse extends ITokenCommon {
-    expiryDate: Date;
 }
 
 export interface ITokenSerialised extends ITokenCommon {
@@ -27,16 +23,18 @@ export type FuncParams<
     K extends keyof T
 > = Parameters<T[K]>[0];
 
-export type ClassType = { new (...args: any[]): any };
-/* eslint-enable @typescript-eslint/no-explicit-any */
+export interface ClassType {
+    new <T extends object>(...args: any[]): T;
+}
 
 export type GetPublicMethodsFromClass<T> = {
-    [K in keyof T]: T[K] extends (...args: unknown[]) => void ? T[K] : never;
+    [K in keyof T]: T[K] extends (...args: any[]) => any ? T[K] : never;
 }[keyof T];
 
 export type GetPublicMethodNamesFromClass<T> = {
-    [K in keyof T]: T[K] extends (...args: unknown[]) => void ? K : never;
+    [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
 }[keyof T];
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export type ClassMethodNamesFilterMethodSignature<T, U> = {
     [K in keyof T]: U extends T[K] ? K : never;
@@ -58,14 +56,14 @@ export type Merge_NonUnion<T> = { [k in keyof T]: T[k] };
 export type Simplify<T> = T extends Identity<T> ? Merge_NonUnion<T> : never;
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type RemoveFirstFromTuple<T extends any[]> = T['length'] extends 0 ? undefined : (((...b: T) => void) extends (a: any, ...b: infer I) => void ? I : []);
+export type RemoveFirstFromTuple<T extends any[]> = T['length'] extends 0 ? [] : ((...b: T) => void) extends (a: any, ...b: infer I) => void ? I : [];
 export type RemoveFirstParam<T extends (...args: any[]) => any> = (...params: RemoveFirstFromTuple<Parameters<T>>) => ReturnType<T>;
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 export default class Common {
-    public static Logger = new Logger('Common', undefined, Levels.WARN);
+    public static Logger = new Logger({ Name: 'Common' });
 
-    public static MakeRequest = async <T>(ReqOptions: AxiosRequestConfig) => {
+    public static MakeRequest = async <T>(ReqOptions: AxiosRequestConfig): Promise<T> => {
         const Response: AxiosResponse<T> = await Axios({
             ...ReqOptions,
             url: `https://opentdb.com/${ReqOptions.url}`,
@@ -88,10 +86,10 @@ export default class Common {
                 yield (LastNum = Item);
     }
 
-    public static CircularReplacer = () => {
+    public static CircularReplacer = (): (<T extends object>(_Key: string, Value: T) => T | void) => {
         const Cache = new WeakSet();
 
-        return (_Key: string, Value: unknown) => {
+        return <T extends object>(_Key: string, Value: T): T | void => {
             if (typeof Value === 'object' && Value !== null) {
                 if (Cache.has(Value)) return;
                 else Cache.add(Value);
@@ -111,7 +109,7 @@ export default class Common {
         return List;
     };
 
-    public static IterableTake = <T>(Iterator: IterableIterator<T>, Amount: number) => {
+    public static IterableTake = <T>(Iterator: IterableIterator<T>, Amount: number): T[] | never => {
         const Result = [];
 
         if (Amount <= 0) throw new Error('Invalid index');
@@ -125,7 +123,7 @@ export default class Common {
         return Result;
     };
 
-    public static IndexToAlpha = <T extends string>(Offset: number, Uppercase: boolean = false) => String.fromCharCode((Uppercase ? 65 : 97) + Offset) as T;
-    public static RandomInt = (Minimum: number, Maximum: number) => Math.floor(Math.random() * (Maximum - Minimum + 1) + Minimum);
-    public static DecodeBase64 = (B64String: Base64Type) => Buffer.from(B64String, 'base64').toString('utf8');
+    public static IndexToAlpha = <T extends string>(Offset: number, Uppercase = false): T => String.fromCharCode((Uppercase ? 65 : 97) + Offset) as T;
+    public static RandomInt = (Minimum: number, Maximum: number): number => Math.floor(Math.random() * (Maximum - Minimum + 1) + Minimum);
+    public static DecodeBase64 = (B64String: Base64Type): string => Buffer.from(B64String, 'base64').toString('utf8');
 }

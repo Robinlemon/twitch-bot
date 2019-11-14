@@ -1,4 +1,4 @@
-import Logger from '@robinlemon/logger';
+import { Logger } from '@robinlemon/logger';
 
 import MessageClient from '../Classes/MessageQueueDispatcher';
 
@@ -13,5 +13,5 @@ export default abstract class Integration {
 import ExtensionCommands from './ExtensionCommands';
 import Trivia from './Trivia';
 
-export const IntegrationList = [Trivia, ExtensionCommands];
-export type IntegrationTypeUnion = (typeof IntegrationList)[number];
+export const IntegrationList = [Trivia, ExtensionCommands] as const;
+export type IntegrationTypeUnion = typeof IntegrationList[number];

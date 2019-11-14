@@ -5,7 +5,7 @@ describe('MakeRequest', () => {
         let Errored = false;
 
         Common.MakeRequest({})
-            .catch((_: Error) => (Errored = true))
+            .catch(() => (Errored = true))
             .finally(() => {
                 expect(Errored).toBeTruthy();
             });
@@ -51,7 +51,7 @@ describe('RandomiseArray', () => {
         let Success = 0;
 
         for (let i = 0; i < Runs; i++) {
-            const Items = new Array(5).fill(null).map(_ => Math.random());
+            const Items = new Array(5).fill(null).map(() => Math.random());
             const Mixed = Common.RandomiseArray([...Items]);
 
             if (JSON.stringify(Items) !== JSON.stringify(Mixed)) Success++;
@@ -91,5 +91,7 @@ describe('RandomInt', () => {
 });
 
 describe('DecodeBase64', () => {
-    expect(Common.DecodeBase64('VGVzdA==' as Base64Type)).toBe('Test');
+    test('Should decode correctly', () => {
+        expect(Common.DecodeBase64('VGVzdA==' as Base64Type)).toBe('Test');
+    });
 });
