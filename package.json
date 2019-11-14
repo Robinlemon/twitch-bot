@@ -16,6 +16,9 @@
         "coverage": "jest --coverage --maxWorkers=2 && codecov",
         "launch": "node -r source-map-support/register build"
     },
+    "typeCoverage": {
+        "atLeast": 90
+    },
     "dependencies": {
         "@hapi/joi": "^15.1.1",
         "@robinlemon/logger": "^6.0.3",
