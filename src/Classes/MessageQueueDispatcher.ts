@@ -1,6 +1,7 @@
 import { Logger, LogLevel } from '@robinlemon/logger';
 import ChatClient from 'twitch-chat-client';
 import chalk = require('chalk');
+import Common from '../Utils/Common';
 
 type QueueMessageTypes = 'Trivia_Start';
 
@@ -81,7 +82,7 @@ export default class MessageQueueDispatcher {
         }
 
         const { Channel, Message, Type, Resolve } = this.Queue[0];
-        const Delay = (Type === undefined ? 3000 : 10000) - this.TimeDifference(this.LastSelfMessage);
+        const Delay = (Type === undefined ? 3000 : 10000) - Common.TimeDifference(this.LastSelfMessage);
 
         if (Message.length > 500) {
             this.Logger.Log(LogLevel.ERROR, `Message Too Long: Received ${Message.length} Characters`);
@@ -104,6 +105,4 @@ export default class MessageQueueDispatcher {
 
         this.NextDispatch = setTimeout(this.Dispatch, Delay);
     };
-
-    private TimeDifference = (Timestamp: number): number => Date.now() - Timestamp;
 }

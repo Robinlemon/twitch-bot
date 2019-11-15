@@ -126,4 +126,6 @@ export default class Common {
     public static IndexToAlpha = <T extends string>(Offset: number, Uppercase = false): T => String.fromCharCode((Uppercase ? 65 : 97) + Offset) as T;
     public static RandomInt = (Minimum: number, Maximum: number): number => Math.floor(Math.random() * (Maximum - Minimum + 1) + Minimum);
     public static DecodeBase64 = (B64String: Base64Type): string => Buffer.from(B64String, 'base64').toString('utf8');
+
+    public static TimeDifference = (Timestamp: number): number => Date.now() - Timestamp;
 }

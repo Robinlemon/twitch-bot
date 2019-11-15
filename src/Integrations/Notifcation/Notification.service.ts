@@ -2,10 +2,12 @@ import 'reflect-metadata';
 
 /* eslint-disable-next-line */
 import{ Logger, LogLevel } from '@robinlemon/logger';
+import ms from 'ms';
 
 import MessageQueueDispatcher from '../../Classes/MessageQueueDispatcher';
 import Command, { CommandType } from '../../Decorators/Command';
 import MessageHandler from '../../Decorators/MessageHandler';
+import Common from '../../Utils/Common';
 import Integration from '../index';
 import NotificationModel from './Notification.model';
 
@@ -97,7 +99,9 @@ export default class Notification extends Integration {
             /* If one does exist (not null) */
             if (MessageObj !== null) {
                 /* Prepare a message template */
-                const MesssageTemplate = `@${MessageObj.To} -> ${MessageObj.From} left you a message FeelsOkayMan 👉 `;
+                const MesssageTemplate = `@${MessageObj.To} -> ${MessageObj.From} left you a message ${ms(
+                    Common.TimeDifference(MessageObj.Issued),
+                )} ago FeelsOkayMan 👉 `;
                 /* truncate excess characters */
                 const Message = `${MesssageTemplate}${MessageObj.Message.substr(0, 500 - MesssageTemplate.length)}`;
 
