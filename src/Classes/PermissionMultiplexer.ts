@@ -10,7 +10,7 @@ export enum EPermissionStatus {
     Staff = 1 << 5,
 }
 
-export default class PermissionMultiplexer {
+export class PermissionMultiplexer {
     public static GetUserPermissions = (User: ChatUser): EPermissionStatus => {
         let PermissionLevel = EPermissionStatus.Normal;
 

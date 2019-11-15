@@ -3,9 +3,9 @@ import 'reflect-metadata';
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 import { Logger } from '@robinlemon/logger';
 
-import MessageQueueDispatcher from '../../Classes/MessageQueueDispatcher';
-import Command, { CommandType } from '../../Decorators/Command';
-import Common from '../../Utils/Common';
+import { MessageQueueDispatcher } from '../../Classes/MessageQueueDispatcher';
+import { Command, CommandType } from '../../Decorators/Command';
+import { Common } from '../../Utils/Common';
 import { Integration } from '../index';
 
 export class ExtensionCommands extends Integration {

@@ -2,7 +2,7 @@ import 'joi-extract-type';
 
 import * as Joi from '@hapi/joi';
 
-const Schema = Joi.object().keys({
+export const Schema = Joi.object().keys({
     /**
      * Twitch Credentials
      */
@@ -34,4 +34,3 @@ const Schema = Joi.object().keys({
 });
 
 export type SchemaType = Joi.extractType<typeof Schema>;
-export default Schema;

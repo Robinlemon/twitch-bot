@@ -8,7 +8,7 @@ import { CommandType, ContextTransformer, ICommand, ITransformOptions } from '..
 import { IMessageHandlerMeta, MessageHandlerType } from '../Decorators/MessageHandler';
 import { IntegrationImplementor } from '../Integrations';
 import { FuncParams, RemoveFirstParam } from '../Utils/Common';
-import PermissionMultiplexer, { EPermissionStatus } from './PermissionMultiplexer';
+import { EPermissionStatus, PermissionMultiplexer } from './PermissionMultiplexer';
 
 export class Channel {
     private Logger = new Logger();

@@ -4,7 +4,7 @@ import DotEnv from 'dotenv';
 import Path from 'path';
 
 import Bot from './Bot';
-import Schema, { SchemaType } from './Utils/Schema';
+import { Schema, SchemaType } from './Utils/Schema';
 
 class Main {
     private Logger = new Logger({ DefaultLevel: LogLevel.WARN, Name: 'GlobalExceptionTracer' });

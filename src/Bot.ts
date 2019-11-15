@@ -6,8 +6,8 @@ import TwitchClient, { AccessToken } from 'twitch';
 import ChatClient from 'twitch-chat-client';
 
 import { Channel } from './Classes/Channel';
-import MessageQueueDispatcher from './Classes/MessageQueueDispatcher';
-import MongoConnection from './Classes/MongoConnection';
+import { MessageQueueDispatcher } from './Classes/MessageQueueDispatcher';
+import { MongoConnection } from './Classes/MongoConnection';
 import { Integration } from './Integrations';
 import { ClassType, FuncParams, ITokenSerialised } from './Utils/Common';
 import { SchemaType } from './Utils/Schema';

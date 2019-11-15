@@ -60,7 +60,7 @@ export type RemoveFirstFromTuple<T extends any[]> = T['length'] extends 0 ? [] :
 export type RemoveFirstParam<T extends (...args: any[]) => any> = (...params: RemoveFirstFromTuple<Parameters<T>>) => ReturnType<T>;
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-export default class Common {
+export class Common {
     public static Logger = new Logger({ Name: 'Common' });
 
     public static MakeRequest = async <T>(ReqOptions: AxiosRequestConfig): Promise<T> => {

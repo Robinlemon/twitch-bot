@@ -1,7 +1,8 @@
 import { Logger, LogLevel } from '@robinlemon/logger';
+import Chalk from 'chalk';
 import ChatClient from 'twitch-chat-client';
-import chalk = require('chalk');
-import Common from '../Utils/Common';
+
+import { Common } from '../Utils/Common';
 
 type QueueMessageTypes = 'Trivia_Start';
 
@@ -21,7 +22,7 @@ export abstract class DispatchClient {
     protected abstract MessageClient: MessageQueueDispatcher;
 }
 
-export default class MessageQueueDispatcher {
+export class MessageQueueDispatcher {
     private Logger = new Logger({ Name: this.constructor.name });
 
     private TwitchNameColors = [
@@ -93,7 +94,7 @@ export default class MessageQueueDispatcher {
         if (Delay <= 0) {
             this.LastSelfMessage = Date.now();
             this.Logger.Name = Channel.slice(1);
-            this.Logger.Log(`${chalk.magentaBright(`@${this.MessageClient['_credentials'].nick}`)} -> ${Message}`);
+            this.Logger.Log(`${Chalk.magentaBright(`@${this.MessageClient['_credentials'].nick}`)} -> ${Message}`);
             this.MessageClient.say(Channel, Message);
             Resolve();
             this.Queue.shift();

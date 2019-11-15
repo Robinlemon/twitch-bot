@@ -13,4 +13,4 @@ class Player {
     }
 }
 
-export default getModelForClass(Player);
+export const TriviaUser = getModelForClass(Player);

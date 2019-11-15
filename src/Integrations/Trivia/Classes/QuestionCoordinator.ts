@@ -1,7 +1,7 @@
 import { Logger, LogLevel } from '@robinlemon/logger';
 import Retry from 'async-retry';
 
-import Common, { Base64Type, ClassMethodReturnTypes } from '../../../Utils/Common';
+import { Base64Type, ClassMethodReturnTypes, Common } from '../../../Utils/Common';
 
 export type QuestionDifficulty = 'easy' | 'medium' | 'hard';
 export type QuestionType = 'multiple' | 'boolean';
@@ -77,7 +77,7 @@ export interface IRequestArgs<Encoding extends QuestionEncoding> {
     encode?: Encoding;
 }
 
-export default class QuestionCoordinator {
+export class QuestionCoordinator {
     public static Logger = new Logger({ Name: 'QuestionCoordinator' });
 
     public static GenerateSession(): Promise<ITokenResponse | never> {

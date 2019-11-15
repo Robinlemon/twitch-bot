@@ -2,7 +2,7 @@ import { Logger, LogLevel } from '@robinlemon/logger';
 import { MongoError } from 'mongodb';
 import Mongoose from 'mongoose';
 
-export default class MongoConnection {
+export class MongoConnection {
     private Logger = new Logger({ DefaultLevel: LogLevel.ERROR, Name: this.constructor.name });
 
     public constructor(private ConnectionString: string) {}

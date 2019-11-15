@@ -1,13 +1,13 @@
 import 'reflect-metadata';
 
-/* eslint-disable-next-line */
-import{ Logger, LogLevel } from '@robinlemon/logger';
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+import { Logger, LogLevel } from '@robinlemon/logger';
 import ms from 'ms';
 
-import MessageQueueDispatcher from '../../Classes/MessageQueueDispatcher';
-import Command, { CommandType } from '../../Decorators/Command';
+import { MessageQueueDispatcher } from '../../Classes/MessageQueueDispatcher';
+import { Command, CommandType } from '../../Decorators/Command';
 import { MessageHandler } from '../../Decorators/MessageHandler';
-import Common from '../../Utils/Common';
+import { Common } from '../../Utils/Common';
 import { Integration } from '../index';
 import NotificationModel from './Notify.model';
 

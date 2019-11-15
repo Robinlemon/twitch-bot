@@ -1,6 +1,6 @@
 import { ChatUser as ChatUserType } from 'twitch-chat-client';
 
-import PermissionMultiplexer, { EPermissionStatus } from '../PermissionMultiplexer';
+import { EPermissionStatus, PermissionMultiplexer } from '../PermissionMultiplexer';
 
 describe('PermissionMultiplexer', () => {
     type Badges = 'vip' | 'broadcaster';

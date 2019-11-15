@@ -1,4 +1,4 @@
-import Common, { Base64Type } from '../Common';
+import { Base64Type, Common } from '../Common';
 
 describe('MakeRequest', () => {
     test('Should Error', () => {

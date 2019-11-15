@@ -1,11 +1,11 @@
 import 'reflect-metadata';
 
-/* eslint-disable-next-line */
-import{ Logger, LogLevel } from '@robinlemon/logger';
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+import { Logger, LogLevel } from '@robinlemon/logger';
 import { all, create } from 'mathjs';
 
-import MessageQueueDispatcher from '../../Classes/MessageQueueDispatcher';
-import Command, { CommandType } from '../../Decorators/Command';
+import { MessageQueueDispatcher } from '../../Classes/MessageQueueDispatcher';
+import { Command, CommandType } from '../../Decorators/Command';
 import { Integration } from '../index';
 
 const Parser = create(all, {});

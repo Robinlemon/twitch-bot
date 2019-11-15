@@ -2,7 +2,7 @@ import { Logger, LogLevel } from '@robinlemon/logger';
 import { promises as fs } from 'fs';
 import { resolve } from 'path';
 
-import MessageClient from '../Classes/MessageQueueDispatcher';
+import { MessageQueueDispatcher } from '../Classes/MessageQueueDispatcher';
 import { ClassType } from '../Utils/Common';
 
 export type IntegrationImplementor = ClassType & Integration;
@@ -10,7 +10,7 @@ export abstract class Integration {
     private static Logger = new Logger({ Name: 'Integration' });
 
     protected abstract ChannelName: string;
-    protected abstract MessageHandler: MessageClient;
+    protected abstract MessageHandler: MessageQueueDispatcher;
     protected abstract Logger: Logger;
 
     public abstract get Identifier(): string;

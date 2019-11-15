@@ -1,4 +1,4 @@
-import Command, { CommandType } from '../Command';
+import { Command, CommandType } from '../Command';
 
 class Test {
     @Command({})

@@ -17,7 +17,7 @@ export type ITransformOptions = Required<ICommandDecoratorOpts> & { IntegrationC
 export type ICommand = Required<Omit<ICommandDecoratorOpts, 'CtxCreator'> & { CtxRetriever?: () => object; Trigger: CommandType }>;
 export type ContextTransformer = <T extends IntegrationImplementor>(Instance: InstanceType<T>, Input: ITransformOptions) => void;
 
-const Decorator = (Options: ICommandDecoratorOpts = {}): PropertyDecorator => {
+export const Command = (Options: ICommandDecoratorOpts = {}): PropertyDecorator => {
     return <T extends IntegrationImplementor>(Target: T | object, PropertyKey: string | symbol): void => {
         const DefaultOptions: Required<ICommandDecoratorOpts> = {
             CtxCreator: () => ({}),
@@ -47,5 +47,3 @@ const Decorator = (Options: ICommandDecoratorOpts = {}): PropertyDecorator => {
         Reflect.defineMetadata('Command::Options', CommandObj, Target, PropertyKey);
     };
 };
-
-export default Decorator;
