@@ -1,6 +1,6 @@
 import { getModelForClass, prop } from '@typegoose/typegoose';
 
-class Player {
+class Notifications {
     @prop({ maxlength: 64, required: true })
     public From!: string;
 
@@ -14,4 +14,4 @@ class Player {
     public Message!: string;
 }
 
-export default getModelForClass(Player);
+export default getModelForClass(Notifications);
