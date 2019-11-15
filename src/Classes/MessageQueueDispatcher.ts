@@ -23,6 +23,25 @@ export abstract class DispatchClient {
 export default class MessageQueueDispatcher {
     private Logger = new Logger({ Name: this.constructor.name });
 
+    private TwitchNameColors = [
+        'Blue',
+        'BlueViolet',
+        'CadetBlue',
+        'Chocolate',
+        'Coral',
+        'DodgerBlue',
+        'Firebrick',
+        'GoldenRod',
+        'Green',
+        'HotPink',
+        'OrangeRed',
+        'Red',
+        'SeaGreen',
+        'SpringGreen',
+        'YellowGreen',
+    ];
+    private CurrentColorIDx = 0;
+
     private Queue: IQueueEntry[] = [];
     private LastSelfMessage = 0;
     private NextDispatch: NodeJS.Timeout | undefined;
@@ -77,6 +96,10 @@ export default class MessageQueueDispatcher {
             this.MessageClient.say(Channel, Message);
             Resolve();
             this.Queue.shift();
+
+            ++this.CurrentColorIDx;
+            if (this.CurrentColorIDx === this.TwitchNameColors.length) this.CurrentColorIDx = 0;
+            this.MessageClient.changeColor(this.TwitchNameColors[this.CurrentColorIDx]);
         }
 
         this.NextDispatch = setTimeout(this.Dispatch, Delay);
