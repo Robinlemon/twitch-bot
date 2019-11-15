@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { IntegrationTypeUnion } from '../Integrations';
+import { IntegrationImplementor } from '../Integrations';
 
 export type MessageHandlerType = (User: string, Message: string) => void;
 
@@ -9,7 +9,7 @@ export interface IMessageHandlerMeta {
     Valid: true;
 }
 
-export default (): PropertyDecorator => <T extends IntegrationTypeUnion>(Target: T | object, PropertyKey: string | symbol): void => {
+export const MessageHandler = (): PropertyDecorator => <T extends IntegrationImplementor>(Target: T | object, PropertyKey: string | symbol): void => {
     const Options: IMessageHandlerMeta = {
         ParentClassName: Target.constructor.name,
         Valid: true,

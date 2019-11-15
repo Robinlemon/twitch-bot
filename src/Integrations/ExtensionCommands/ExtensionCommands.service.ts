@@ -6,9 +6,9 @@ import { Logger } from '@robinlemon/logger';
 import MessageQueueDispatcher from '../../Classes/MessageQueueDispatcher';
 import Command, { CommandType } from '../../Decorators/Command';
 import Common from '../../Utils/Common';
-import Integration from '../index';
+import { Integration } from '../index';
 
-class ExtensionCommands extends Integration {
+export class ExtensionCommands extends Integration {
     public constructor(protected ChannelName: string, protected MessageHandler: MessageQueueDispatcher, protected Logger: Logger) {
         super();
     }
@@ -183,5 +183,3 @@ class ExtensionCommands extends Integration {
         });
     };
 }
-
-export default ExtensionCommands;

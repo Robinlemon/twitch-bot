@@ -5,9 +5,9 @@ import{ Logger } from '@robinlemon/logger';
 
 import MessageQueueDispatcher from '../../Classes/MessageQueueDispatcher';
 import Command, { CommandType } from '../../Decorators/Command';
-import Integration from '../index';
+import { Integration } from '../index';
 
-export default class Vanish extends Integration {
+export class Vanish extends Integration {
     public constructor(protected ChannelName: string, protected MessageHandler: MessageQueueDispatcher, protected Logger: Logger) {
         super();
     }

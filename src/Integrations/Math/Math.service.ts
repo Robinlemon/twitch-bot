@@ -6,7 +6,7 @@ import { all, create } from 'mathjs';
 
 import MessageQueueDispatcher from '../../Classes/MessageQueueDispatcher';
 import Command, { CommandType } from '../../Decorators/Command';
-import Integration from '../index';
+import { Integration } from '../index';
 
 const Parser = create(all, {});
 const EvalFn = Parser.evaluate;
@@ -35,7 +35,7 @@ Parser.import!(
     { override: true },
 );
 
-export default class Math extends Integration {
+export class Math extends Integration {
     public constructor(protected ChannelName: string, protected MessageHandler: MessageQueueDispatcher, protected Logger: Logger) {
         super();
     }

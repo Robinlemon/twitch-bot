@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { IntegrationTypeUnion } from '../Integrations';
+import { IntegrationImplementor } from '../Integrations';
 export interface ICommandDecoratorOpts {
     Identifiers?: string[];
     Moderator?: boolean;
@@ -15,10 +15,10 @@ export type CommandType = (Context: Record<string, any>, User: string, ...args: 
 
 export type ITransformOptions = Required<ICommandDecoratorOpts> & { IntegrationClass: string; MethodName: string };
 export type ICommand = Required<Omit<ICommandDecoratorOpts, 'CtxCreator'> & { CtxRetriever?: () => object; Trigger: CommandType }>;
-export type ContextTransformer = <T extends IntegrationTypeUnion>(Instance: InstanceType<T>, Input: ITransformOptions) => void;
+export type ContextTransformer = <T extends IntegrationImplementor>(Instance: InstanceType<T>, Input: ITransformOptions) => void;
 
 const Decorator = (Options: ICommandDecoratorOpts = {}): PropertyDecorator => {
-    return <T extends IntegrationTypeUnion>(Target: T | object, PropertyKey: string | symbol): void => {
+    return <T extends IntegrationImplementor>(Target: T | object, PropertyKey: string | symbol): void => {
         const DefaultOptions: Required<ICommandDecoratorOpts> = {
             CtxCreator: () => ({}),
             Identifiers: [PropertyKey as string],

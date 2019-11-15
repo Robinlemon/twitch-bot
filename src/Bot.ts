@@ -5,11 +5,11 @@ import Path from 'path';
 import TwitchClient, { AccessToken } from 'twitch';
 import ChatClient from 'twitch-chat-client';
 
-import Channel from './Classes/Channel';
+import { Channel } from './Classes/Channel';
 import MessageQueueDispatcher from './Classes/MessageQueueDispatcher';
 import MongoConnection from './Classes/MongoConnection';
-import { IntegrationList } from './Integrations';
-import { FuncParams, ITokenSerialised } from './Utils/Common';
+import { Integration } from './Integrations';
+import { ClassType, FuncParams, ITokenSerialised } from './Utils/Common';
 import { SchemaType } from './Utils/Schema';
 
 export default class Bot {
@@ -17,6 +17,8 @@ export default class Bot {
     private ChatClient!: ChatClient;
     private MessageClient!: MessageQueueDispatcher;
     private MongoConnection!: MongoConnection;
+
+    private Integrations!: (ClassType & Integration)[];
 
     private Channels = new Map<string, Channel | null>();
     private TokenPath!: string;
@@ -26,6 +28,9 @@ export default class Bot {
 
     public Initialise = async (Environment: SchemaType): Promise<void> => {
         this.Logger.Log('Loaded Environment');
+
+        this.Integrations = await Integration.LoadIntegrations();
+        this.Logger.Log(`Loaded ${this.Integrations.length} Integrations`);
 
         Environment.ChannelsList.split(',')
             .map(k => k.trim().toLocaleLowerCase())
@@ -75,7 +80,7 @@ export default class Bot {
     private CreateChannel = (ChannelName: string): Channel => {
         const Instance = new Channel(ChannelName);
 
-        for (const Integration of IntegrationList) Instance.RegisterIntegration(new Integration(ChannelName, this.MessageClient, Instance.GetLogger()));
+        for (const Integration of this.Integrations) Instance.RegisterIntegration(new Integration(ChannelName, this.MessageClient, Instance.GetLogger()));
         return Instance;
     };
 

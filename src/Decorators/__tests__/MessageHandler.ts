@@ -1,4 +1,4 @@
-import MessageHandler, { MessageHandlerType } from '../MessageHandler';
+import { MessageHandler, MessageHandlerType } from '../MessageHandler';
 
 class Test {
     @MessageHandler()

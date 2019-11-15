@@ -6,11 +6,11 @@ import ChatClient, { ChatUser } from 'twitch-chat-client';
 
 import { CommandType, ContextTransformer, ICommand, ITransformOptions } from '../Decorators/Command';
 import { IMessageHandlerMeta, MessageHandlerType } from '../Decorators/MessageHandler';
-import { IntegrationList } from '../Integrations';
+import { IntegrationImplementor } from '../Integrations';
 import { FuncParams, RemoveFirstParam } from '../Utils/Common';
 import PermissionMultiplexer, { EPermissionStatus } from './PermissionMultiplexer';
 
-export default class Channel {
+export class Channel {
     private Logger = new Logger();
     private CommandMap = new Map<string, ICommand>();
     private CommandContext = new Map<string, object>();
@@ -27,7 +27,7 @@ export default class Channel {
     public GetDisplayName = (): string => this.DisplayName;
     public GetLogger = (): Logger => this.Logger;
 
-    public RegisterIntegration<T extends typeof IntegrationList[number]>(Integration: InstanceType<T>): void {
+    public RegisterIntegration<T extends IntegrationImplementor>(Integration: InstanceType<T>): void {
         const InstanceMethods = Object.getOwnPropertyNames(Integration).filter(
             PropName => typeof (Integration as Record<string, unknown>)[PropName] === 'function',
         );

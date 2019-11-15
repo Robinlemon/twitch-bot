@@ -6,12 +6,12 @@ import ms from 'ms';
 
 import MessageQueueDispatcher from '../../Classes/MessageQueueDispatcher';
 import Command, { CommandType } from '../../Decorators/Command';
-import MessageHandler from '../../Decorators/MessageHandler';
+import { MessageHandler } from '../../Decorators/MessageHandler';
 import Common from '../../Utils/Common';
-import Integration from '../index';
-import NotificationModel from './Notification.model';
+import { Integration } from '../index';
+import NotificationModel from './Notify.model';
 
-export default class Notification extends Integration {
+export class Notify extends Integration {
     public constructor(protected ChannelName: string, protected MessageHandler: MessageQueueDispatcher, protected Logger: Logger) {
         super();
     }
