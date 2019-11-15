@@ -1,6 +1,6 @@
 {
     "name": "twitch-bot",
-    "version": "3.4.2",
+    "version": "3.5.0",
     "description": "A TypeScript driven automated Twitch client that provides functionality in streamers chats.",
     "author": "Lewis Gibson <lewis-gibson@hotmail.com>",
     "license": "MIT",
@@ -27,6 +27,7 @@
         "@types/bluebird": "^3.5.29",
         "@types/fs-extra": "^8.0.1",
         "@types/hapi__joi": "^15.0.3",
+        "@types/mathjs": "^6.0.2",
         "@types/mongoose": "^5.5.31",
         "@types/node": "^12.12.7",
         "async-retry": "^1.2.3",
@@ -36,6 +37,7 @@
         "dotenv": "^8.2.0",
         "fs-extra": "^8.1.0",
         "joi-extract-type": "^15.0.0",
+        "mathjs": "^6.2.3",
         "mongoose": "^5.7.11",
         "reflect-metadata": "^0.1.13",
         "source-map-support": "^0.5.16",

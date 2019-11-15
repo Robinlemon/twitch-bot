@@ -11,8 +11,9 @@ export default abstract class Integration {
 }
 
 import ExtensionCommands from './ExtensionCommands';
+import Math from './Math';
 import Notification from './Notifcation';
 import Trivia from './Trivia';
 
-export const IntegrationList = [Trivia, ExtensionCommands, Notification] as const;
+export const IntegrationList = [Trivia, ExtensionCommands, Notification, Math] as const;
 export type IntegrationTypeUnion = typeof IntegrationList[number];
