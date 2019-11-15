@@ -166,6 +166,22 @@ class ExtensionCommands extends Integration {
             Message: (Context.Iterator as IterableIterator<string>).next().value,
         });
     };
+
+    @Command({
+        Identifiers: ['pray'],
+        IncludeProtoNameAsIdentifier: false,
+        Subscriber: true,
+    })
+    public Pray: CommandType = async () => {
+        await this.MessageHandler.Send({
+            Channel: this.ChannelName,
+            Message: '👑',
+        });
+        await this.MessageHandler.Send({
+            Channel: this.ChannelName,
+            Message: 'pokiW ThankEgg',
+        });
+    };
 }
 
 export default ExtensionCommands;
