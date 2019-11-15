@@ -11,7 +11,7 @@ export interface ICommandDecoratorOpts {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type CommandType = (Context: Record<string, any>, User: string, ...args: unknown[]) => void;
+export type CommandType = (Context: Record<string, any>, User: string, ...args: string[]) => void;
 
 export type ITransformOptions = Required<ICommandDecoratorOpts> & { IntegrationClass: string; MethodName: string };
 export type ICommand = Required<Omit<ICommandDecoratorOpts, 'CtxCreator'> & { CtxRetriever?: () => object; Trigger: CommandType }>;

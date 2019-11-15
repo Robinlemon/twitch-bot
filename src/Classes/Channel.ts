@@ -66,8 +66,9 @@ export default class Channel {
         const Split = Message.split(' ');
         const IsCommand = Message.charAt(0) === this.CommandPrefix;
         const Command = Split[0] ? Split[0].substr(this.CommandPrefix.length) : '';
+        const Arguments = Split.slice(1);
 
-        if (IsCommand) this.ProcessCommand(User, Command, Raw.userInfo);
+        if (IsCommand) this.ProcessCommand(User, Command, Raw.userInfo, Arguments);
         else {
             for (const Handler of this.MessageHandlers) Handler(User, Message);
         }
@@ -92,21 +93,22 @@ export default class Channel {
         });
     };
 
-    private ProcessCommand = (User: string, CommandName: string, UserObj: ChatUser): void => {
+    private ProcessCommand = (User: string, CommandName: string, UserObj: ChatUser, Arguments: string[]): void => {
         const PermissionStatus = PermissionMultiplexer.GetUserPermissions(UserObj);
 
         if (this.CommandMap.has(CommandName)) {
             const Command = this.CommandMap.get(CommandName)!;
 
-            // https://i.imgur.com/EnJ8v7L.png
-            if (
-                (Command.StrictSubscription &&
-                    ((Command.Subscriber && PermissionStatus & EPermissionStatus.Subscriber) ||
-                        (Command.Moderator && PermissionStatus >= EPermissionStatus.Moderator))) ||
-                (Command.StrictSubscription === false && Command.Subscriber && PermissionStatus >= EPermissionStatus.Subscriber)
-            ) {
-                Command.Trigger(Command.CtxRetriever(), User);
-            }
+            /* Below subscriber when required */
+            if (Command.Subscriber && PermissionStatus < EPermissionStatus.Subscriber) return;
+
+            /* Not a subscriber when provided with strict */
+            if (Command.Subscriber && Command.StrictSubscription && !(PermissionStatus & EPermissionStatus.Subscriber)) return;
+
+            /* Not a moderator when required */
+            if (Command.Moderator && PermissionStatus < EPermissionStatus.Moderator) return;
+
+            Command.Trigger(Command.CtxRetriever(), User, ...Arguments);
         }
     };
 }

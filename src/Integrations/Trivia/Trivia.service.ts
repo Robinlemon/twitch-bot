@@ -30,7 +30,7 @@ class Trivia extends Integration {
         Streak: number;
     } = { Name: '', Streak: 1 };
 
-    protected MessageFormat = 'monkaHmm %Question% monkaHmm | %Answers%';
+    protected MessageFormat = 'Okey %Question% Okey | %Answers%';
 
     public constructor(protected ChannelName: string, protected MessageHandler: MessageQueueDispatcher, protected Logger: Logger) {
         super();
@@ -45,16 +45,21 @@ class Trivia extends Integration {
         IncludeProtoNameAsIdentifier: false,
         Subscriber: true,
     })
-    public Score: CommandType = async (_Context, Username): Promise<void> => {
+    public Score: CommandType = async (_Context, Username, PlayerName?: string): Promise<void> => {
         try {
-            const Player = await TriviaUser.findOne({ Username });
+            const IsUserProvided = typeof PlayerName !== 'undefined' && PlayerName;
+            const Player = await TriviaUser.findOne({ Username: IsUserProvided ? PlayerName : Username });
 
             if (Player !== null)
                 this.MessageHandler.Send({
                     Channel: this.ChannelName,
-                    Message: `@${Username} is on ${Player.Score} points! ${Player.Score > 0 ? 'FeelsOkayMan' : 'FeelsBadMan'} Clap`,
+                    Message: `@${IsUserProvided ? PlayerName : Username} has ${Player.Score} points! ${Player.Score > 0 ? 'FeelsOkayMan Clap' : 'FeelsBadMan'}`,
                 });
-            else this.MessageHandler.Send({ Channel: this.ChannelName, Message: `@${Username} I couldn't find your score FeelsBadMan` });
+            else
+                this.MessageHandler.Send({
+                    Channel: this.ChannelName,
+                    Message: `@${Username} I couldn't find ${IsUserProvided ? `the score for the user ${PlayerName}` : 'your score'} FeelsBadMan`,
+                });
         } catch (Err) {
             this.Logger.Log(LogLevel.ERROR, Err);
         }
@@ -102,7 +107,7 @@ class Trivia extends Integration {
 
         const DataMap: Record<string, string> = {
             '%answers%': PossibleAnswers.map((Item, IDx): string => `${Common.IndexToAlpha<TriviaAnswer>(IDx).toLocaleUpperCase()}. ${Item}`).join(' | '),
-            '%category': Category,
+            '%category%': Category,
             '%difficulty%': Difficulty,
             '%question%': Question,
             '%type%': Type,

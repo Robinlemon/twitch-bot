@@ -73,7 +73,7 @@ export default class MessageQueueDispatcher {
         if (Delay <= 0) {
             this.LastSelfMessage = Date.now();
             this.Logger.Name = Channel.slice(1);
-            this.Logger.Log(`${chalk.magentaBright(`@${this.MessageClient.currentNick}`)} -> ${Message}`);
+            this.Logger.Log(`${chalk.magentaBright(`@${this.MessageClient['_credentials'].nick}`)} -> ${Message}`);
             this.MessageClient.say(Channel, Message);
             Resolve();
             this.Queue.shift();
