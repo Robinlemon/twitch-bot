@@ -4,11 +4,11 @@ import 'reflect-metadata';
 import{ Logger, LogLevel } from '@robinlemon/logger';
 
 import MessageQueueDispatcher from '../../Classes/MessageQueueDispatcher';
-import QuestionCoordinator, { EQuestionCategory, IQuestionsResponse, RetryQuestionApi } from '../../Classes/QuestionCoordinator';
 import Command, { CommandType } from '../../Decorators/Command';
 import MessageHandler from '../../Decorators/MessageHandler';
 import Common from '../../Utils/Common';
 import Integration from '../index';
+import QuestionCoordinator, { EQuestionCategory, IQuestionsResponse, RetryQuestionApi } from './Classes/QuestionCoordinator';
 import TriviaUser from './Trivia.model';
 
 type TriviaAnswer = 'a' | 'b' | 'c' | 'd';

@@ -82,7 +82,7 @@ export default class MessageQueueDispatcher {
         }
 
         const { Channel, Message, Type, Resolve } = this.Queue[0];
-        const Delay = (Type === undefined ? 3000 : 10000) - Common.TimeDifference(this.LastSelfMessage);
+        const Delay = (Type === undefined ? 3000 : 5000) - Common.TimeDifference(this.LastSelfMessage);
 
         if (Message.length > 500) {
             this.Logger.Log(LogLevel.ERROR, `Message Too Long: Received ${Message.length} Characters`);

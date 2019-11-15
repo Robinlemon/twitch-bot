@@ -1,7 +1,7 @@
 import { Logger, LogLevel } from '@robinlemon/logger';
 import Retry from 'async-retry';
 
-import Common, { Base64Type, ClassMethodReturnTypes } from '../Utils/Common';
+import Common, { Base64Type, ClassMethodReturnTypes } from '../../../Utils/Common';
 
 export type QuestionDifficulty = 'easy' | 'medium' | 'hard';
 export type QuestionType = 'multiple' | 'boolean';
