@@ -62,6 +62,89 @@ export class Trivia extends Integration {
                 });
         } catch (Err) {
             this.Logger.Log(LogLevel.ERROR, Err);
+            this.MessageHandler.Send({
+                Channel: this.ChannelName,
+                Message: `@${Username} Something went wrong FeelsDankMan`,
+            });
+        }
+    };
+
+    @Command({
+        Identifiers: ['leaderboard', 'lb'],
+        IncludeProtoNameAsIdentifier: false,
+        Subscriber: true,
+    })
+    public Leaderboard: CommandType = async (_Context, Username, PlayerName): Promise<void> => {
+        try {
+            if (typeof PlayerName !== 'undefined' && PlayerName) {
+                /**
+                 * Return if the @ symbol is not at the beginning of one exists.
+                 */
+                if (PlayerName.includes('@') && PlayerName.indexOf('@') !== 0) return;
+
+                /**
+                 * Return if more than one @ symbol in name.
+                 */
+                const AtSymbolMatch = PlayerName.match(/@/g);
+                if (AtSymbolMatch !== null && AtSymbolMatch.length > 1) return;
+
+                /**
+                 * Remove @ symbol if one exists.
+                 */
+                if (PlayerName.startsWith('@')) PlayerName = PlayerName.replace(/@/g, '');
+
+                const Players = await TriviaUser.find().sort({ Score: 'descending' });
+
+                if (Players !== null) {
+                    const Rank = Players.findIndex(Player => Player.Username === PlayerName);
+
+                    if (Rank > -1) {
+                        let Emoji = 'Pepega Clap';
+
+                        if (Rank < 5) Emoji = 'FeelsOkayMan';
+                        if (Rank === 0) Emoji = '5Head 🍷';
+
+                        this.MessageHandler.Send({
+                            Channel: this.ChannelName,
+                            Message: `@${Username} ${PlayerName} is rank ${Rank + 1} on the leaderboard! ${Emoji}`,
+                        });
+                    } else {
+                        this.MessageHandler.Send({
+                            Channel: this.ChannelName,
+                            Message: `@${Username} ${PlayerName} does not have a score yet! FeelsBadMan`,
+                        });
+                    }
+                } else {
+                    this.MessageHandler.Send({
+                        Channel: this.ChannelName,
+                        Message: `@${Username} Nobody has a score yet! FeelsBadMan`,
+                    });
+                }
+            } else {
+                const Players = await TriviaUser.find()
+                    .sort({ Score: 'descending' })
+                    .limit(5);
+
+                if (Players !== null && Players.length > 0) {
+                    const Emoji = ['1⃣ ', '2⃣ ', '3⃣ ', '4⃣ ', '5⃣ '];
+                    const Message = Players.map((Player, IDx) => `${Emoji[IDx]} ${Player.Username} (${Player.Score})`).join(' ');
+
+                    this.MessageHandler.Send({
+                        Channel: this.ChannelName,
+                        Message,
+                    });
+                } else
+                    this.MessageHandler.Send({
+                        Channel: this.ChannelName,
+                        Message: `@${Username} Nobody has a score yet! FeelsBadMan`,
+                    });
+            }
+        } catch (Err) {
+            this.Logger.Log(LogLevel.ERROR, Err);
+            this.MessageHandler.Send({
+                Channel: this.ChannelName,
+                Message: `@${Username} Something went wrong FeelsDankMan`,
+            });
         }
     };
 
@@ -194,17 +277,17 @@ export class Trivia extends Integration {
             if (NewPoints === undefined) {
                 this.MessageHandler.Send({
                     Channel: this.ChannelName,
-                    Message: `@${User} gets ${Points} points${StreakMessage}! 5Head The answer was ${this.CorrectLetter}. ${this.CorrectAnswer}! There was an internal error updating your profile score though FeelsBadMan`,
+                    Message: `@${User} gets ${Points} points${StreakMessage}! The answer was ${this.CorrectLetter}. ${this.CorrectAnswer}! There was an internal error updating your profile score though FeelsBadMan`,
                 });
             } else
                 this.MessageHandler.Send({
                     Channel: this.ChannelName,
-                    Message: `@${User} gets ${Points} points${StreakMessage}! 5Head You are now on ${NewPoints} points! The answer was ${this.CorrectLetter}. ${this.CorrectAnswer}!`,
+                    Message: `@${User} gets ${Points} points${StreakMessage}! You are now on ${NewPoints} points! The answer was ${this.CorrectLetter}. ${this.CorrectAnswer}! 5Head 🍷`,
                 });
         } else this.UpdateScore(User, -50);
     };
 
-    private async UpdateScore(Username: string, Amount: number): Promise<undefined | number> {
+    private async UpdateScore(Username: string, Amount: number): Promise<number | void> {
         try {
             const Player = await TriviaUser.findOneAndUpdate(
                 { Username },
@@ -220,7 +303,10 @@ export class Trivia extends Integration {
             return Player.Score + Amount;
         } catch (Err) {
             this.Logger.Log(LogLevel.ERROR, Err);
-            return undefined;
+            this.MessageHandler.Send({
+                Channel: this.ChannelName,
+                Message: `@${Username} Something went wrong FeelsDankMan`,
+            });
         }
     }
 }
