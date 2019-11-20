@@ -194,12 +194,12 @@ export class Trivia extends Integration {
             if (NewPoints === undefined) {
                 this.MessageHandler.Send({
                     Channel: this.ChannelName,
-                    Message: `@${User} gets ${Points} points${StreakMessage}! The answer was ${this.CorrectLetter}. ${this.CorrectAnswer}! There was an internal error updating your score profile though FeelsBadMan`,
+                    Message: `@${User} gets ${Points} points${StreakMessage}! 5Head The answer was ${this.CorrectLetter}. ${this.CorrectAnswer}! There was an internal error updating your profile score though FeelsBadMan`,
                 });
             } else
                 this.MessageHandler.Send({
                     Channel: this.ChannelName,
-                    Message: `@${User} gets ${Points} points${StreakMessage}! You are now on ${NewPoints} points! The answer was ${this.CorrectLetter}. ${this.CorrectAnswer}!`,
+                    Message: `@${User} gets ${Points} points${StreakMessage}! 5Head You are now on ${NewPoints} points! The answer was ${this.CorrectLetter}. ${this.CorrectAnswer}!`,
                 });
         } else this.UpdateScore(User, -50);
     };
