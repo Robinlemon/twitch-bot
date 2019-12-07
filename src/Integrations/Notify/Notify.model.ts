@@ -1,10 +1,10 @@
 import { getModelForClass, prop } from '@typegoose/typegoose';
 
 class Notifications {
-    @prop({ maxlength: 64, required: true })
+    @prop({ lowercase: true, maxlength: 64, required: true })
     public From!: string;
 
-    @prop({ maxlength: 64, required: true, unique: true })
+    @prop({ lowercase: true, maxlength: 64, required: true, unique: true })
     public To!: string;
 
     @prop({ required: true })

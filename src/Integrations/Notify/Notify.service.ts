@@ -40,18 +40,24 @@ export class Notify extends Integration {
          * Return if more than one @ symbol in name.
          */
         const AtSymbolMatch = Recipient.match(/@/g);
-        if (AtSymbolMatch !== null && AtSymbolMatch.length > 1) return;
+        if (AtSymbolMatch?.length) return;
 
         /**
          * Remove @ symbol if one exists.
          */
-        if (Recipient.startsWith('@')) Recipient = Recipient.replace(/@/g, '');
+        if (Recipient.startsWith('@')) Recipient = Recipient.slice(1);
 
         /**
          * Return if no message specified.
          */
         const FullMessage = MessageParts.join(' ');
         if (FullMessage.length === 0) return;
+
+        /**
+         * Lowercase both names
+         */
+        User = User.toLowerCase();
+        Recipient = Recipient.toLowerCase();
 
         /**
          * Add a message to the model database
@@ -99,15 +105,13 @@ export class Notify extends Integration {
             /* If one does exist (not null) */
             if (MessageObj !== null) {
                 /* Prepare a message template */
-                const MesssageTemplate = `@${MessageObj.To} -> ${MessageObj.From} left you a message ${ms(
+                const Template = `@${MessageObj.To} -> ${MessageObj.From} left you a message ${ms(
                     Common.TimeDifference(MessageObj.Issued),
-                )} ago FeelsOkayMan 👉 `;
-                /* truncate excess characters */
-                const Message = `${MesssageTemplate}${MessageObj.Message.substr(0, 500 - MesssageTemplate.length)}`;
+                )} ago FeelsOkayMan 👉 ${MessageObj.Message}`;
 
                 this.MessageHandler.Send({
                     Channel: this.ChannelName,
-                    Message,
+                    Message: Template.slice(0, 500),
                 });
             }
         } catch (Err) {
