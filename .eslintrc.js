@@ -62,6 +62,7 @@ module.exports = {
                 '@typescript-eslint/interface-name-prefix': 'off',
                 '@typescript-eslint/no-non-null-assertion': 'off',
                 '@typescript-eslint/camelcase': 'off',
+                '@typescript-eslint/no-empty-function': 'off',
 
                 /**
                  * Extra Type Linting
