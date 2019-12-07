@@ -23,12 +23,15 @@ export class MongoConnection {
             this.Logger.Log(Err);
             this.Connect();
         });
+
+        Mongoose.connection.on('disconnect', () => {
+            this.Connect();
+        });
     };
 
     private Connect = async (): Promise<void> => {
         try {
             await Mongoose.connect(this.ConnectionString, {
-                autoReconnect: true,
                 useCreateIndex: true,
                 useFindAndModify: false,
                 useNewUrlParser: true,
