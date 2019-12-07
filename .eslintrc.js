@@ -41,7 +41,7 @@ module.exports = {
             files: ['*.ts'],
             parser: '@typescript-eslint/parser',
             parserOptions: {
-                //project: './tsconfig.json',
+                project: './tsconfig.json',
                 sourceType: 'module',
             },
             plugins: ['@typescript-eslint'],
@@ -49,7 +49,7 @@ module.exports = {
                 /* TypeScript ESLint */
                 'plugin:@typescript-eslint/recommended',
                 'plugin:@typescript-eslint/eslint-recommended',
-                //'plugin:@typescript-eslint/recommended-requiring-type-checking',
+                'plugin:@typescript-eslint/recommended-requiring-type-checking',
 
                 /* Import */
                 'plugin:import/errors',
@@ -61,8 +61,12 @@ module.exports = {
                 '@typescript-eslint/member-ordering': 'error',
                 '@typescript-eslint/interface-name-prefix': 'off',
                 '@typescript-eslint/no-non-null-assertion': 'off',
-                '@typescript-eslint/no-parameter-properties': 'off',
                 '@typescript-eslint/camelcase': 'off',
+
+                /**
+                 * Extra Type Linting
+                 */
+                '@typescript-eslint/no-misused-promises': 'off',
             },
             overrides: [
                 {

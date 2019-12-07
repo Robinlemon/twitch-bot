@@ -21,7 +21,7 @@ export class Vanish extends Integration {
         IncludeProtoNameAsIdentifier: false,
         Subscriber: false,
     })
-    public Vanish: CommandType = async (_Context, User): Promise<void> => {
+    public Vanish: CommandType = (_Context, User): void => {
         this.MessageHandler.Send({
             Channel: this.ChannelName,
             Message: `/timeout ${User} 1`,

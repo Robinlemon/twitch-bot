@@ -49,7 +49,7 @@ export class Math extends Integration {
         IncludeProtoNameAsIdentifier: false,
         Subscriber: false,
     })
-    public Math: CommandType = async (_Context, User, ...MessageParts): Promise<void> => {
+    public Math: CommandType = (_Context, User, ...MessageParts): void => {
         const FullMessage = MessageParts.join(' ');
         if (FullMessage.length === 0) return;
 

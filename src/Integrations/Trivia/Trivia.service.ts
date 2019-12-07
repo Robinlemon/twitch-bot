@@ -80,7 +80,7 @@ export class Trivia extends Integration {
                 /**
                  * Return if the @ symbol is not at the beginning of one exists.
                  */
-                if (PlayerName.includes('@') && PlayerName.indexOf('@') !== 0) return;
+                if (PlayerName.includes('@') && !PlayerName.startsWith('@')) return;
 
                 /**
                  * Return if more than one @ symbol in name.
@@ -223,12 +223,7 @@ export class Trivia extends Integration {
 
     @MessageHandler()
     public ProcessTriviaAnswer = async (User: string, Message: string): Promise<void> => {
-        if (
-            this.Active === false ||
-            'abcd'.indexOf(Message.toLocaleLowerCase()) === -1 ||
-            Message.toLocaleLowerCase() === 'abcd' ||
-            this.Answered.includes(User)
-        )
+        if (this.Active === false || !'abcd'.includes(Message.toLocaleLowerCase()) || Message.toLocaleLowerCase() === 'abcd' || this.Answered.includes(User))
             return;
         else this.Answered.push(User);
 
@@ -299,7 +294,8 @@ export class Trivia extends Integration {
                 },
             );
 
-            await Player.UpdateScore(Amount);
+            Player.UpdateScore(Amount);
+
             return Player.Score + Amount;
         } catch (Err) {
             this.Logger.Log(LogLevel.ERROR, Err);

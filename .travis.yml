@@ -1,17 +1,16 @@
 ---
 before_install:
-  - "npm update"
-cache: npm
+    - 'yarn upgrade'
+cache: yarn
 branches:
-  only:
-    - master
+    only:
+        - master
 install:
-  - "npm install"
+    - 'yarn'
 language: node_js
 node_js:
-  - node
+    - node
 script:
-  - "npm run build"
-  - "npx codechecks"
-  - "npm run coverage"
+    - 'yarn build'
+    - 'yarn coverage'
 sudo: false

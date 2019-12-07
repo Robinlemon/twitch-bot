@@ -78,7 +78,7 @@ export class MessageQueueDispatcher {
     private Dispatch = (): void => {
         if (this.Queue.length === 0) return;
         if (this.NextDispatch !== undefined) {
-            clearTimeout(this.NextDispatch!);
+            clearTimeout(this.NextDispatch);
             this.NextDispatch = undefined;
         }
 

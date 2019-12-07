@@ -8,7 +8,12 @@
 		"declarationMap": false /* Generates a sourcemap for each corresponding '.d.ts' file. */ ,
 		"sourceMap": true /* Generates corresponding '.map' file. */ ,
 		"outDir": "build" /* Redirect output structure to the directory. */ ,
-		"rootDir": "./src" /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */ ,
+		"rootDir": "./" /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */ ,
+		"lib": ["es2020"] /* List of library files to be included in the compilation. */ ,
+
+		/* Build Options */
+		"importHelpers": true /* Import emit helpers (e.g. __extends, __rest, etc..) from tslib. */ ,
+		"downlevelIteration": true /* Provide full support for iterables in for..of, spread and destructuring when targeting ES5 or ES3. */ ,
 
 		/* Strict Type-Checking Options */
 		"strict": true /* Enable all strict type-checking options. */ ,
@@ -28,7 +33,7 @@
 		"allowSyntheticDefaultImports": true /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */ ,
 		"esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */ ,
 
-		/* Experimental Options */
+		/* Decorator Options */
 		"experimentalDecorators": true /* Enables experimental support for ES7 decorators. */ ,
 		"emitDecoratorMetadata": true /* Enables experimental support for emitting type metadata for decorators. */ ,
 
@@ -36,5 +41,7 @@
 		"allowJs": true /* Allows JS files to be imported. */ ,
 		"resolveJsonModule": true /* Allows JSON files to be imported. */
 	},
-	"include": ["./src/**/*", "./declarations/**/*"]
+	"include": [
+		"./**/*.ts", "./**/*.js"
+	]
 }

@@ -1,34 +1,19 @@
 import Joi from '@hapi/joi';
-import { Logger, LogLevel } from '@robinlemon/logger';
+import { Logger as LoggerClass, LogLevel } from '@robinlemon/logger';
 import DotEnv from 'dotenv';
 import Path from 'path';
 
 import Bot from './Bot';
 import { Schema, SchemaType } from './Utils/Schema';
 
-class Main {
-    private Logger = new Logger({ DefaultLevel: LogLevel.WARN, Name: 'GlobalExceptionTracer' });
-    private BotInstance!: Bot;
+const Logger = new LoggerClass({ DefaultLevel: LogLevel.WARN, Name: 'Exception Tracer' });
 
-    public constructor() {
-        Joi.validate(
-            DotEnv.config({ path: Path.resolve(__dirname, '../', '.env') }).parsed,
-            Schema,
-            { convert: true, noDefaults: false },
-            async (Err: Error, Modified) => {
-                if (Err) {
-                    this.Logger.Log('Invalid .env');
-                    this.Logger.Log(Err.message);
-                    process.exit(0);
-                } else {
-                    Object.assign(process.env, Modified);
-
-                    this.BotInstance = new Bot();
-                    this.BotInstance.Initialise((process.env as unknown) as SchemaType);
-                }
-            },
-        );
+Joi.validate(DotEnv.config({ path: Path.resolve(__dirname, '../', '.env') }).parsed, Schema, { convert: true, noDefaults: false }, (Err: Error, Modified) => {
+    if (Err) {
+        Logger.Log('Invalid .env');
+        Logger.Log(Err.message);
+    } else {
+        Object.assign(process.env, Modified);
+        new Bot().Initialise((process.env as unknown) as SchemaType);
     }
-}
-
-new Main();
+});

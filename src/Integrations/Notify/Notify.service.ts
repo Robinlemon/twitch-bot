@@ -34,7 +34,7 @@ export class Notify extends Integration {
         /**
          * Return if the @ symbol is not at the beginning of one exists.
          */
-        if (Recipient.includes('@') && Recipient.indexOf('@') !== 0) return;
+        if (Recipient.includes('@') && !Recipient.startsWith('@')) return;
 
         /**
          * Return if more than one @ symbol in name.

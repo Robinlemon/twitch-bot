@@ -64,7 +64,7 @@ export class Channel {
         this.Logger.Log(`${PrintName} -> ${ColouredNames}`);
 
         const Split = Message.split(' ');
-        const IsCommand = Message.charAt(0) === this.CommandPrefix;
+        const IsCommand = Message.startsWith(this.CommandPrefix);
         const Command = Split[0] ? Split[0].substr(this.CommandPrefix.length) : '';
         const Arguments = Split.slice(1);
 
