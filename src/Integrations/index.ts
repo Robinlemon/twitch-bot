@@ -1,11 +1,14 @@
 import { Logger, LogLevel } from '@robinlemon/logger';
 import { promises as fs } from 'fs';
 import { resolve } from 'path';
+import TwitchClient from 'twitch';
 
 import { MessageQueueDispatcher } from '../Classes/MessageQueueDispatcher';
 import { ClassType } from '../Utils/Common';
 
 export type IntegrationImplementor = ClassType & Integration;
+export type IntegrationCtorFn = (ChannelName: string, MessageHandler: MessageQueueDispatcher, Logger: Logger, Client: TwitchClient) => IntegrationImplementor;
+
 export abstract class Integration {
     private static Logger = new Logger({ Name: 'Integration' });
 

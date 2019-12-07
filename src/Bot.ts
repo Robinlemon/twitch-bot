@@ -8,7 +8,7 @@ import ChatClient from 'twitch-chat-client';
 import { Channel } from './Classes/Channel';
 import { MessageQueueDispatcher } from './Classes/MessageQueueDispatcher';
 import { MongoConnection } from './Classes/MongoConnection';
-import { Integration } from './Integrations';
+import { Integration, IntegrationCtorFn } from './Integrations';
 import { ClassType, FuncParams, ITokenSerialised } from './Utils/Common';
 import { SchemaType } from './Utils/Schema';
 
@@ -18,7 +18,7 @@ export default class Bot {
     private MessageClient!: MessageQueueDispatcher;
     private MongoConnection!: MongoConnection;
 
-    private Integrations!: (ClassType & Integration)[];
+    private Integrations!: (ClassType<Parameters<IntegrationCtorFn>> & Integration)[];
 
     private Channels = new Map<string, Channel | null>();
     private TokenPath!: string;
@@ -80,7 +80,8 @@ export default class Bot {
     private CreateChannel = (ChannelName: string): Channel => {
         const Instance = new Channel(ChannelName);
 
-        for (const Integration of this.Integrations) Instance.RegisterIntegration(new Integration(ChannelName, this.MessageClient, Instance.GetLogger()));
+        for (const Integration of this.Integrations)
+            Instance.RegisterIntegration(new Integration(ChannelName, this.MessageClient, Instance.GetLogger(), this.TwitchClient));
         return Instance;
     };
 

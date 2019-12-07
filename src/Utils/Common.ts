@@ -23,8 +23,8 @@ export type FuncParams<
     K extends keyof T
 > = Parameters<T[K]>[0];
 
-export interface ClassType {
-    new <T extends object>(...args: any[]): T;
+export interface ClassType<A extends any[] = any[]> {
+    new <T extends object>(...args: A): T;
 }
 
 export type GetPublicMethodsFromClass<T> = {
