@@ -5,7 +5,7 @@ module.exports = {
             interpreter: 'node',
             interpreter_args: '-r source-map-support/register',
             name: 'Twitch Chat Bot',
-            script: './build',
+            script: './build/src/index.js',
         },
     ],
 };
