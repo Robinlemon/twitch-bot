@@ -7,7 +7,7 @@ export const Schema = Joi.object().keys({
      * Twitch Credentials
      */
     ChannelsList: Joi.string()
-        .regex(/^(#\w+),?\s*?(#\w+)*$/)
+        .regex(/^(#\w+)(\s*?,#\w+)*$/)
         .default('')
         .description('A list of channels to join.'),
     ClientID: Joi.string()
