@@ -5,7 +5,7 @@ import { MessageQueueDispatcher } from '../../Classes/MessageQueueDispatcher';
 import { Command, CommandType } from '../../Decorators/Command';
 import { Integration } from '../index';
 
-export class Vanish extends Integration {
+export class Debug extends Integration {
     public constructor(protected ChannelName: string, protected MessageHandler: MessageQueueDispatcher, protected Logger: Logger) {
         super();
     }
@@ -15,14 +15,15 @@ export class Vanish extends Integration {
     }
 
     @Command({
-        Identifiers: ['vanish'],
+        Identifiers: ['ping'],
         IncludeProtoNameAsIdentifier: false,
+        Moderator: true,
         Subscriber: false,
     })
-    public Vanish: CommandType = (_Context, User): void => {
+    public Ping: CommandType = (_Context, User): void => {
         this.MessageHandler.Send({
             Channel: this.ChannelName,
-            Message: `/timeout ${User} 1`,
+            Message: `@${User} -> Pong FeelsOkayMan 🏓 ppHop 🏓 FeelsOkayMan`,
         });
     };
 }

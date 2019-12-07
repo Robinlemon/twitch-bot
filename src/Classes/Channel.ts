@@ -1,5 +1,3 @@
-import 'reflect-metadata';
-
 import { Logger, LogLevel } from '@robinlemon/logger';
 import Chalk from 'chalk';
 import ChatClient, { ChatUser } from 'twitch-chat-client';

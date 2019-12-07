@@ -1,5 +1,3 @@
-import 'reflect-metadata';
-
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 import { Logger, LogLevel } from '@robinlemon/logger';
 import ms from 'ms';

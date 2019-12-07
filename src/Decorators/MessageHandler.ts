@@ -1,5 +1,3 @@
-import 'reflect-metadata';
-
 import { IntegrationImplementor } from '../Integrations';
 
 export type MessageHandlerType = (User: string, Message: string) => void;

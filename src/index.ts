@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import Joi from '@hapi/joi';
 import { Logger as LoggerClass, LogLevel } from '@robinlemon/logger';
 import DotEnv from 'dotenv';
