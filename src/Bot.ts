@@ -42,7 +42,7 @@ export default class Bot {
         await this.MongoConnection.Initialise();
 
         this.Logger.Log('Initialising Twitch API');
-        this.TokenPath = Path.join(__dirname, '..', Environment.TokenFile);
+        this.TokenPath = Path.join(__dirname, '../../', Environment.TokenFile);
         this.TokenInfo = JSON.parse(await fs.readFile(this.TokenPath, 'UTF-8'));
         this.TwitchClient = await TwitchClient.withCredentials(Environment.ClientID, this.TokenInfo.accessToken, undefined, {
             clientSecret: Environment.ClientSecret,

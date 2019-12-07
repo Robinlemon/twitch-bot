@@ -45,7 +45,7 @@ export class Math extends Integration {
     }
 
     @Command({
-        Identifiers: ['math', 'eval'],
+        Identifiers: ['math'],
         IncludeProtoNameAsIdentifier: false,
         Subscriber: false,
     })

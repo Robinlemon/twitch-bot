@@ -17,7 +17,7 @@ export class Vanish extends Integration {
     }
 
     @Command({
-        Identifiers: ['vanish', 'hide', 'disappear'],
+        Identifiers: ['vanish'],
         IncludeProtoNameAsIdentifier: false,
         Subscriber: false,
     })
