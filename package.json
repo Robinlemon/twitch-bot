@@ -11,7 +11,8 @@
         "test:live": "jest --verbose --watchAll",
         "coverage": "jest --coverage --maxWorkers=2 && codecov",
         "lint": "eslint . --ext .js,.ts,.json,.md",
-        "lint:fix": "eslint . --ext .js,.ts,.json,.md --fix"
+        "lint:fix": "eslint . --ext .js,.ts,.json,.md --fix",
+        "docker": "docker-compose -f docker-compose.yml up -d"
     },
     "typeCoverage": {
         "atLeast": 90
