@@ -1,0 +1,9 @@
+version: "2"
+
+services:
+    twitchbot:
+        restart: always
+        image: robinlemon/twitchbot
+        build:
+            context: .
+            dockerfile: Dockerfile
