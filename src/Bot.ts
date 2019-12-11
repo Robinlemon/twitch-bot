@@ -78,7 +78,7 @@ export default class Bot {
     };
 
     private CreateChannel = (ChannelName: string): Channel => {
-        const Instance = new Channel(ChannelName);
+        const Instance = new Channel(ChannelName, this.MessageClient);
 
         for (const Integration of this.Integrations)
             Instance.RegisterIntegration(new Integration(ChannelName, this.MessageClient, Instance.GetLogger(), this.TwitchClient));

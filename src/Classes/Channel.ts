@@ -6,6 +6,7 @@ import { CommandType, ContextTransformer, ICommand, ITransformOptions } from '..
 import { IMessageHandlerMeta, MessageHandlerType } from '../Decorators/MessageHandler';
 import { IntegrationImplementor } from '../Integrations';
 import { FuncParams, RemoveFirstParam } from '../Utils/Common';
+import { MessageQueueDispatcher } from './MessageQueueDispatcher';
 import { EPermissionStatus, PermissionMultiplexer } from './PermissionMultiplexer';
 
 export class Channel {
@@ -17,7 +18,7 @@ export class Channel {
     private CommandPrefix = '$';
     private DisplayName: string;
 
-    public constructor(protected ChannelName: string) {
+    public constructor(protected ChannelName: string, protected MessageClient: MessageQueueDispatcher) {
         this.DisplayName = ChannelName.slice(1).toLowerCase();
         this.Logger.Name = this.DisplayName;
     }
@@ -93,6 +94,15 @@ export class Channel {
 
     private ProcessCommand = (User: string, CommandName: string, UserObj: ChatUser, Arguments: string[]): void => {
         const PermissionStatus = PermissionMultiplexer.GetUserPermissions(UserObj);
+
+        if (CommandName === 'setprefix' && User.toLowerCase() === 'robinlemonz') {
+            this.CommandPrefix = (Arguments[0] || '$').trim();
+            this.MessageClient.Send({
+                Channel: this.ChannelName,
+                Message: `@${User.toLowerCase()} -> Prefix updated FeelsOkayMan !`,
+            });
+            return;
+        }
 
         if (this.CommandMap.has(CommandName)) {
             const Command = this.CommandMap.get(CommandName)!;
