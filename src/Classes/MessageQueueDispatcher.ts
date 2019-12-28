@@ -4,7 +4,7 @@ import ChatClient from 'twitch-chat-client';
 
 import { Common } from '../Utils/Common';
 
-type QueueMessageTypes = 'Trivia_Start';
+type QueueMessageTypes = 'Trivia_Start' | 'No_Delay';
 
 interface IQueueRequest {
     Channel: string;
@@ -83,7 +83,24 @@ export class MessageQueueDispatcher {
         }
 
         const { Channel, Message, Type, Resolve } = this.Queue[0];
-        const Delay = (Type === undefined ? 3000 : 5000) - Common.TimeDifference(this.LastSelfMessage);
+        let InitialTime;
+
+        switch (Type) {
+            case 'No_Delay':
+                InitialTime = 0;
+                break;
+
+            case 'Trivia_Start':
+                InitialTime = 5000;
+                break;
+
+            default:
+                InitialTime = 3000;
+                break;
+        }
+
+        let Delay = InitialTime - Common.TimeDifference(this.LastSelfMessage);
+        if (Type === 'No_Delay') Delay = 0;
 
         if (Message.length > 500) {
             this.Logger.Log(LogLevel.ERROR, `Message Too Long: Received ${Message.length} Characters`);

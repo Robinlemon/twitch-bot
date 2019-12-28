@@ -1,5 +1,6 @@
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 import { Logger, LogLevel } from '@robinlemon/logger';
+import Axios from 'axios';
 import { getLastCommit } from 'git-last-commit';
 import TwitchClient from 'twitch';
 
@@ -62,5 +63,34 @@ export class Debug extends Integration {
             Channel: this.ChannelName,
             Message: `@${User} -> Build: v${Package.version} (${this.CommitHash})`,
         });
+    };
+
+    @Command({
+        Identifiers: ['say'],
+        IncludeProtoNameAsIdentifier: false,
+        Moderator: true,
+        Subscriber: false,
+    })
+    public Say: CommandType = async (_Context, User, Source): Promise<void> => {
+        if (User.toLowerCase() !== 'robinlemonz') return;
+
+        try {
+            const { data } = await Axios({ method: 'get', url: Source });
+            const Lines = data.split(/\r?\n/g);
+
+            for (const Line of Lines)
+                this.MessageHandler.Send({
+                    Channel: this.ChannelName,
+                    Message: Line,
+                    Type: 'No_Delay',
+                });
+        } catch (Err) {
+            this.Logger.Log(LogLevel.ERROR, Err);
+            this.MessageHandler.Send({
+                Channel: this.ChannelName,
+                Message: `Error Fetching Source`,
+                Type: 'No_Delay',
+            });
+        }
     };
 }
