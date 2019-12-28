@@ -1,7 +1,7 @@
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 import { Logger, LogLevel } from '@robinlemon/logger';
 import Axios from 'axios';
-import Bluebird from 'bluebird';
+//import Axios from 'axios';
 import { getLastCommit } from 'git-last-commit';
 import TwitchClient from 'twitch';
 
@@ -58,41 +58,48 @@ export class Debug extends Integration {
             Message: `@${User} -> ${Object.entries(process.versions)
                 .map(([Package, Version]) => `${Package}=${Version}`)
                 .join('; ')}`,
+            SendDelay: 0,
         });
 
         this.MessageHandler.Send({
             Channel: this.ChannelName,
             Message: `@${User} -> Build: v${Package.version} (${this.CommitHash})`,
+            SendDelay: 0,
+        });
+
+        this.MessageHandler.Send({
+            Channel: this.ChannelName,
+            Message: `@${User} -> Environment: ${process.env.NODE_ENV}`,
+            SendDelay: 0,
         });
     };
 
     @Command({
         Identifiers: ['say'],
         IncludeProtoNameAsIdentifier: false,
-        Moderator: true,
+        Moderator: false,
         Subscriber: false,
     })
     public Say: CommandType = async (_Context, User, Source): Promise<void> => {
-        if (User.toLowerCase() !== 'robinlemonz') return;
+        if (User.toLocaleLowerCase() !== 'robinlemonz') return;
 
         try {
             const { data } = await Axios({ method: 'get', url: Source });
-            const Lines: string[] = data.split(/\r?\n/g);
+            const Lines: string[] = data.split(/\r?\n/g).filter(Boolean);
 
-            await Bluebird.each(Lines, Line =>
-                this.MessageHandler.Send({
+            if (Lines.length === 0) throw new Error('No Lines!');
+            for (const Line of Lines)
+                await this.MessageHandler.Send({
                     Channel: this.ChannelName,
-                    Delay: 400,
                     Message: Line,
-                    Type: 'Custom',
-                }),
-            );
+                    SendDelay: 334,
+                });
         } catch (Err) {
             this.Logger.Log(LogLevel.ERROR, Err);
             this.MessageHandler.Send({
                 Channel: this.ChannelName,
                 Message: `Error Fetching Source`,
-                Type: 'No_Delay',
+                SendDelay: 0,
             });
         }
     };

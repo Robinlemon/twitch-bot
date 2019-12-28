@@ -1,7 +1,7 @@
 import { DocumentType, getModelForClass, prop } from '@typegoose/typegoose';
 
 class Player {
-    @prop({ maxlength: 64, required: true, unique: true })
+    @prop({ lowercase: true, maxlength: 64, required: true, unique: true })
     public Username!: string;
 
     @prop({ default: 0 })

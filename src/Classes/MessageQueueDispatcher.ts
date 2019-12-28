@@ -4,13 +4,10 @@ import ChatClient from 'twitch-chat-client';
 
 import { Common } from '../Utils/Common';
 
-type QueueMessageTypes = 'Trivia_Start' | 'No_Delay' | 'Custom';
-
 interface IQueueRequest {
     Channel: string;
     Message: string;
-    Type?: QueueMessageTypes;
-    Delay?: number;
+    SendDelay?: number;
 }
 
 interface IQueueEntry extends IQueueRequest {
@@ -26,30 +23,32 @@ export abstract class DispatchClient {
 export class MessageQueueDispatcher {
     private Logger = new Logger({ Name: this.constructor.name });
 
-    private TwitchNameColors = [
-        'Blue',
-        'BlueViolet',
-        'CadetBlue',
-        'Chocolate',
-        'Coral',
-        'DodgerBlue',
-        'Firebrick',
-        'GoldenRod',
-        'Green',
-        'HotPink',
-        'OrangeRed',
-        'Red',
-        'SeaGreen',
-        'SpringGreen',
-        'YellowGreen',
-    ];
-    private CurrentColorIDx = 0;
+    // private TwitchNameColors = [
+    //     'Blue',
+    //     'BlueViolet',
+    //     'CadetBlue',
+    //     'Chocolate',
+    //     'Coral',
+    //     'DodgerBlue',
+    //     'Firebrick',
+    //     'GoldenRod',
+    //     'Green',
+    //     'HotPink',
+    //     'OrangeRed',
+    //     'Red',
+    //     'SeaGreen',
+    //     'SpringGreen',
+    //     'YellowGreen',
+    // ];
+    // private CurrentColorIDx = 0;
 
     private Queue: IQueueEntry[] = [];
     private LastSelfMessage = 0;
     private NextDispatch: NodeJS.Timeout | undefined;
 
-    public constructor(private MessageClient: ChatClient) {}
+    public constructor(private MessageClient: ChatClient) {
+        this.MessageClient.changeColor('HotPink');
+    }
 
     public Send = async (Options: IQueueRequest): Promise<void> => {
         const { AwaitFn, Resolve } = this.GenerateDispatchAwaiter();
@@ -83,26 +82,8 @@ export class MessageQueueDispatcher {
             this.NextDispatch = undefined;
         }
 
-        const { Channel, Message, Type, Resolve, Delay: CustomDelay } = this.Queue[0];
-        let InitialTime;
-
-        switch (Type) {
-            case 'No_Delay':
-                InitialTime = 0;
-                break;
-
-            case 'Trivia_Start':
-                InitialTime = 5000;
-                break;
-
-            default:
-                InitialTime = 3000;
-                break;
-        }
-
-        let Delay = InitialTime - Common.TimeDifference(this.LastSelfMessage);
-        if (Type === 'No_Delay') Delay = 0;
-        if (Type === 'Custom') Delay = CustomDelay!;
+        const { Channel, Message, Resolve, SendDelay } = this.Queue[0];
+        const Delay = (SendDelay ?? 3000) - Common.TimeDifference(this.LastSelfMessage);
 
         if (Message.length > 500) {
             this.Logger.Log(LogLevel.ERROR, `Message Too Long: Received ${Message.length} Characters`);
@@ -118,9 +99,9 @@ export class MessageQueueDispatcher {
             Resolve();
             this.Queue.shift();
 
-            ++this.CurrentColorIDx;
-            if (this.CurrentColorIDx === this.TwitchNameColors.length) this.CurrentColorIDx = 0;
-            this.MessageClient.changeColor(this.TwitchNameColors[this.CurrentColorIDx]);
+            //++this.CurrentColorIDx;
+            //if (this.CurrentColorIDx === this.TwitchNameColors.length) this.CurrentColorIDx = 0;
+            //this.MessageClient.changeColor(this.TwitchNameColors[this.CurrentColorIDx]);
         }
 
         this.NextDispatch = setTimeout(this.Dispatch, Delay);

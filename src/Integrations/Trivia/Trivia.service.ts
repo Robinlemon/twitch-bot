@@ -46,7 +46,7 @@ export class Trivia extends Integration {
     public Score: CommandType = async (_Context, Username, PlayerName?: string): Promise<void> => {
         try {
             const IsUserProvided = typeof PlayerName !== 'undefined' && PlayerName;
-            const Player = await TriviaUser.findOne({ Username: IsUserProvided ? PlayerName : Username });
+            const Player = await TriviaUser.findOne({ Username: IsUserProvided ? PlayerName!.toLocaleLowerCase() : Username.toLocaleLowerCase() });
 
             if (Player !== null)
                 this.MessageHandler.Send({
@@ -90,6 +90,8 @@ export class Trivia extends Integration {
                  * Remove @ symbol if one exists.
                  */
                 if (PlayerName.startsWith('@')) PlayerName = PlayerName.replace(/@/g, '');
+
+                PlayerName = PlayerName.toLocaleLowerCase();
 
                 const Players = await TriviaUser.find().sort({ Score: 'descending' });
 
@@ -198,7 +200,7 @@ export class Trivia extends Integration {
             typeof DataMap[Match.toLowerCase()] === 'undefined' ? Match : DataMap[Match.toLowerCase()],
         );
 
-        await this.MessageHandler.Send({ Channel: this.ChannelName, Message, Type: 'Trivia_Start' });
+        await this.MessageHandler.Send({ Channel: this.ChannelName, Message, SendDelay: 5000 });
 
         this.Answered = [];
         this.CorrectAnswer = CorrectAnswer;
@@ -221,6 +223,8 @@ export class Trivia extends Integration {
 
     @MessageHandler()
     public ProcessTriviaAnswer = async (User: string, Message: string): Promise<void> => {
+        User = User.toLocaleLowerCase();
+
         if (this.Active === false || !'abcd'.includes(Message.toLocaleLowerCase()) || Message.toLocaleLowerCase() === 'abcd' || this.Answered.includes(User))
             return;
         else this.Answered.push(User);
@@ -281,6 +285,8 @@ export class Trivia extends Integration {
     };
 
     private async UpdateScore(Username: string, Amount: number): Promise<number | void> {
+        Username = Username.toLocaleLowerCase();
+
         try {
             const Player = await TriviaUser.findOneAndUpdate(
                 { Username },
