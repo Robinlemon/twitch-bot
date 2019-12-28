@@ -1,6 +1,6 @@
 {
     "name": "twitch-bot",
-    "version": "3.7.5",
+    "version": "3.7.6",
     "description": "A TypeScript driven automated Twitch client that provides functionality in streamers chats.",
     "author": "Lewis Gibson <lewis-gibson@hotmail.com>",
     "license": "MIT",
@@ -12,7 +12,8 @@
         "coverage": "jest --coverage --maxWorkers=2 && codecov",
         "lint": "eslint . --ext .js,.ts,.json,.md",
         "lint:fix": "eslint . --ext .js,.ts,.json,.md --fix",
-        "docker": "docker-compose up --build -d"
+        "docker": "docker-compose up --build -d",
+        "logs": "docker-compose logs -f --tail=100"
     },
     "typeCoverage": {
         "atLeast": 90
