@@ -1,6 +1,7 @@
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 import { Logger, LogLevel } from '@robinlemon/logger';
 import Axios from 'axios';
+import Bluebird from 'bluebird';
 import { getLastCommit } from 'git-last-commit';
 import TwitchClient from 'twitch';
 
@@ -76,14 +77,16 @@ export class Debug extends Integration {
 
         try {
             const { data } = await Axios({ method: 'get', url: Source });
-            const Lines = data.split(/\r?\n/g);
+            const Lines: string[] = data.split(/\r?\n/g);
 
-            for (const Line of Lines)
+            await Bluebird.each(Lines, Line =>
                 this.MessageHandler.Send({
                     Channel: this.ChannelName,
+                    Delay: 400,
                     Message: Line,
-                    Type: 'No_Delay',
-                });
+                    Type: 'Custom',
+                }),
+            );
         } catch (Err) {
             this.Logger.Log(LogLevel.ERROR, Err);
             this.MessageHandler.Send({
