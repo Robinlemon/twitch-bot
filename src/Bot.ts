@@ -85,18 +85,12 @@ export default class Bot {
         return Instance;
     };
 
-    private SetupChat = async (): Promise<void> => {
-        this.Logger.Log('Connecting To Twitch IRC');
-        await this.ChatClient.connect();
-
-        this.Logger.Log('Connected, Waiting For Registration');
-        await this.ChatClient.waitForRegistration();
-
-        this.Logger.Log('Successfully Authenticated to Twitch IRC');
+    private SetupChat = (): void => {
         for (const ChannelName of this.Channels.keys()) this.Channels.set(ChannelName, this.CreateChannel(ChannelName));
-        await this.JoinChannels();
 
         this.ChatClient.onPrivmsg(this.PrivateMessageHandler);
+        this.ChatClient.onRegister(() => this.JoinChannels());
+        this.ChatClient.connect();
     };
 
     private JoinChannels = async (): Promise<void> => {

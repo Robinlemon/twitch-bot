@@ -50,24 +50,23 @@ export class Debug extends Integration {
         Moderator: true,
         Subscriber: false,
     })
-    public Debug: CommandType = (_Context, User): void => {
+    public Debug: CommandType = async (_Context, User): Promise<void> => {
         if (User.toLowerCase() !== 'robinlemonz') return;
 
-        this.MessageHandler.Send({
+        await this.MessageHandler.Send({
             Channel: this.ChannelName,
             Message: `@${User} -> ${Object.entries(process.versions)
                 .map(([Package, Version]) => `${Package}=${Version}`)
                 .join('; ')}`,
-            SendDelay: 0,
         });
 
-        this.MessageHandler.Send({
+        await this.MessageHandler.Send({
             Channel: this.ChannelName,
             Message: `@${User} -> Build: v${Package.version} (${this.CommitHash})`,
             SendDelay: 0,
         });
 
-        this.MessageHandler.Send({
+        await this.MessageHandler.Send({
             Channel: this.ChannelName,
             Message: `@${User} -> Environment: ${process.env.NODE_ENV}`,
             SendDelay: 0,
