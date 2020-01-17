@@ -28,10 +28,12 @@ export class Trivia extends Integration {
         Streak: number;
     } = { Name: '', Streak: 1 };
 
-    protected MessageFormat = 'Okey %Question% Okey | %Answers%';
+    protected MessageFormat!: string;
 
     public constructor(protected ChannelName: string, protected MessageHandler: MessageQueueDispatcher, protected Logger: Logger) {
         super();
+        const emote = ChannelName === 'viscose' ? 'Okey' : 'FeelsOkayMan';
+        this.MessageFormat = `${emote} %Question% ${emote} | %Answers%`;
     }
 
     public get Identifier(): string {
