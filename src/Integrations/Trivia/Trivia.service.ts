@@ -32,7 +32,7 @@ export class Trivia extends Integration {
 
     public constructor(protected ChannelName: string, protected MessageHandler: MessageQueueDispatcher, protected Logger: Logger) {
         super();
-        const emote = ChannelName === 'viscose' ? 'Okey' : 'FeelsOkayMan';
+        const emote = ChannelName === '#viscose' ? 'Okey' : 'FeelsOkayMan';
         this.MessageFormat = `${emote} %Question% ${emote} | %Answers%`;
     }
 

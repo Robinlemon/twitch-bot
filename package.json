@@ -1,6 +1,6 @@
 {
     "name": "twitch-bot",
-    "version": "3.7.8",
+    "version": "3.7.9",
     "description": "A TypeScript driven automated Twitch client that provides functionality in streamers chats.",
     "author": "Lewis Gibson <lewis-gibson@hotmail.com>",
     "license": "MIT",
