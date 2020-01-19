@@ -8,6 +8,7 @@ import { Integration } from '../index';
 export class Code extends Integration {
     private _disabled = false;
     private _count = 0;
+    private _usedCode = new Set<string>();
 
     public constructor(protected ChannelName: string, protected MessageHandler: MessageQueueDispatcher, protected Logger: Logger) {
         super();
@@ -25,12 +26,22 @@ export class Code extends Integration {
     public Code: CommandType = (_Context, User): void => {
         if (this._disabled) return;
 
+        if (this._usedCode.has(User.toLowerCase())) {
+            this.MessageHandler.Send({
+                Channel: this.ChannelName,
+                Message: `@${User} -> You have already redeemed your Fornite code!`,
+            });
+            return;
+        }
+
         const Code = Array.from({ length: 5 }, () => this.createRandomString(5)).join('-');
 
         this.MessageHandler.Send({
             Channel: this.ChannelName,
             Message: `@${User} -> Your Fornite code is ${Code}. Please visit https://www.epicgames.com/fortnite/en-US/redeem to redeem your code!`,
         });
+
+        this._usedCode.add(User.toLocaleLowerCase());
         this._count++;
 
         if (this._count % 10 === 0)
