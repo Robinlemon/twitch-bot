@@ -7,6 +7,7 @@ import { Integration } from '../index';
 
 export class Code extends Integration {
     private _disabled = false;
+    private _count = 0;
 
     public constructor(protected ChannelName: string, protected MessageHandler: MessageQueueDispatcher, protected Logger: Logger) {
         super();
@@ -30,6 +31,13 @@ export class Code extends Integration {
             Channel: this.ChannelName,
             Message: `@${User} -> Your Fornite code is ${Code}. Please visit https://www.epicgames.com/fortnite/en-US/redeem to redeem your code!`,
         });
+        this._count++;
+
+        if (this._count % 10 === 0)
+            this.MessageHandler.Send({
+                Channel: 'robinlemonz',
+                Message: `Jebaited ${this._count} people into creating codes!`,
+            });
     };
 
     @Command({
