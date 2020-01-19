@@ -29,7 +29,7 @@ export class Code extends Integration {
         if (this._usedCode.has(User.toLowerCase())) {
             this.MessageHandler.Send({
                 Channel: this.ChannelName,
-                Message: `@${User} -> You have already redeemed your Fornite code!`,
+                Message: `@${User} -> You have already redeemed your Fortnite code!`,
             });
             return;
         }
@@ -38,7 +38,7 @@ export class Code extends Integration {
 
         this.MessageHandler.Send({
             Channel: this.ChannelName,
-            Message: `@${User} -> Your Fornite code is ${Code}. Please visit https://www.epicgames.com/fortnite/en-US/redeem to redeem your code!`,
+            Message: `@${User} -> Your Fortnite code is ${Code}. Please visit https://www.epicgames.com/fortnite/en-US/redeem to redeem your code!`,
         });
 
         this._usedCode.add(User.toLocaleLowerCase());
