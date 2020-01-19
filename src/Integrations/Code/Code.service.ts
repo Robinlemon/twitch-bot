@@ -34,7 +34,7 @@ export class Code extends Integration {
             return;
         }
 
-        const Code = Array.from({ length: 5 }, () => this.createRandomString(5)).join('-');
+        const Code = Array.from({ length: 4 }, () => this.createRandomString(5)).join('-');
 
         this.MessageHandler.Send({
             Channel: this.ChannelName,
